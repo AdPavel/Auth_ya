@@ -10,7 +10,7 @@ class Base(BaseSettings):
     postgres_user: str
     postgres_password: str
     postgres_host: str
-    postgres_post: int
+    postgres_port: int
     postgres_db: str
 
     # Redis section
