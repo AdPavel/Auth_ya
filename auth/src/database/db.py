@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from ..utils.settings import settings
+from utils.settings import settings
 
 
 user = settings.postgres_user
