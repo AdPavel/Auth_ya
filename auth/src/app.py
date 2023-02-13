@@ -1,11 +1,23 @@
+import backoff
 from flask import Flask
-from database.db import init_db
+
+from database.db import db, init_db
+from database.db_models import User
 
 
-app = Flask(__name__)
-init_db(app)
+@backoff.on_exception(
+    wait_gen=backoff.expo, exception=Exception,
+    max_tries=10
+)
+def get_app() -> Flask:
+    app = Flask(__name__)
+    init_db(app)
+    app.app_context().push()
+    db.create_all()
+
+    return app
 
 
-@app.route('/hello-world')
-def hello_world():
-    return 'Hello, World!'
+if __name__ == '__main__':
+    app = get_app()
+    app.run()

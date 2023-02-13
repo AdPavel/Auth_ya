@@ -7,9 +7,9 @@ services:
     env_file: ./.env
     volumes:
       - ./db/pg_data:/var/lib/postgresql/data/
-      - ./db/restore/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+      #- ./db/restore/dump.sql:/docker-entrypoint-initdb.d/dump.sql
     ports:
-    - 5432:5432
+    - "5432:5432"
     expose:
       - "5432"
 
@@ -17,7 +17,7 @@ services:
     container_name: redis
     image: redis:alpine
     ports:
-    - 6379:6379
+    - "6379:6379"
 
   auth:
     container_name: auth
