@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from database.db import db, init_db
 from database.db_models import User, Role, LogHistory, UserRole
+from .api.v1.roles import roles
 
 
 def create_admin_role():
@@ -24,6 +25,8 @@ def get_app() -> Flask:
     db.create_all()
     create_admin_role()
 
+    app.register_blueprint(roles, url_prefix='/api/v1/roles')
+
     @app.cli.command("create_superuser")
     @click.argument("login")
     @click.argument("password")
@@ -40,6 +43,8 @@ def get_app() -> Flask:
         db.session.commit()
 
     app.cli.add_command(create_superuser)
+
+
     return app
 
 
