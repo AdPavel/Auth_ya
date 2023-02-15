@@ -4,7 +4,7 @@ import click
 
 from database.db import db, init_db
 from database.db_actions import create_user, set_role, create_role
-from database.db_models import User, Role, LogHistory, UserRole
+from database.db_models import User, Role, LogHistory
 from api.v1.roles import roles
 from api.v1.account import account
 
@@ -31,7 +31,7 @@ def get_app() -> Flask:
         response = create_user(login, password)
         if response.success:
             superuser_role = Role.query.filter_by(name='admin').first()
-            set_role(response.obj.id, superuser_role.id)
+            set_role(response.obj, superuser_role)#(response.obj.id, superuser_role.id)
 
     app.cli.add_command(create_superuser)
 
