@@ -1,19 +1,13 @@
 import backoff
 from flask import Flask
 import click
-from werkzeug.security import generate_password_hash, check_password_hash
 
 from database.db import db, init_db
+from database.db_actions import create_user, set_role, create_role
 from database.db_models import User, Role, LogHistory, UserRole
 from api.v1.roles import roles
+from api.v1.account import account
 
-
-def create_admin_role():
-    name = Role.query.filter_by(name='admin').first()
-    if not name:
-        admin = Role(name='admin')
-        db.session.add(admin)
-        db.session.commit()
 
 @backoff.on_exception(
     wait_gen=backoff.expo, exception=Exception,
@@ -24,24 +18,20 @@ def get_app() -> Flask:
     init_db(app)
     app.app_context().push()
     db.create_all()
-    create_admin_role()
+    create_role('admin')
 
     app.register_blueprint(roles, url_prefix='/api/v1/roles')
+    app.register_blueprint(account, url_prefix='/api/v1/account')
 
     @app.cli.command("create_superuser")
     @click.argument("login")
     @click.argument("password")
     def create_superuser(login, password):
 
-        hashed_password = generate_password_hash(password, method='sha256')
-        superuser = User(login=login, password=hashed_password)
-        db.session.add(superuser)
-        db.session.commit()
-
-        superuser_role = Role.query.filter_by(name='admin').first()
-        user_role = UserRole(user_id=superuser.id, role_id=superuser_role.id)
-        db.session.add(user_role)
-        db.session.commit()
+        response = create_user(login, password)
+        if response.success:
+            superuser_role = Role.query.filter_by(name='admin').first()
+            set_role(response.obj.id, superuser_role.id)
 
     app.cli.add_command(create_superuser)
 
