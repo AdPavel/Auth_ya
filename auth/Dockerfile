@@ -18,4 +18,4 @@ WORKDIR /auth/src
 ENV PYTHONPATH "${PYTHONPATH}/auth/src"
 RUN export PYTHONPATH=.
 #CMD ["uvicorn", "wsgi_app:app", "--host", "0.0.0.0", "--port=8001"]
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "wsgi_app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8001", "wsgi_app:app"]
