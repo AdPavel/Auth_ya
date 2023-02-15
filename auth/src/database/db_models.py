@@ -6,12 +6,20 @@ from sqlalchemy.dialects.postgresql import UUID
 from .db import db
 
 
+users_roles = db.Table('users_roles',
+    db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False),
+    db.Column('user_id', UUID(as_uuid=True), ForeignKey('users.id')),
+    db.Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id'))
+)
+
+
 class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     login = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
+    role = db.relationship('Role', secondary=users_roles, backref='users')
 
     def __repr__(self):
         return f'<User {self.login}>'
@@ -31,14 +39,13 @@ class Role(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     name = db.Column(db.String, unique=True, nullable=False)
+    # user = db.relationship('User', secondary=users_roles, backref='roles')
 
     def __repr__(self):
         return f'<Role {self.name}>'
 
 
-class UserRole(db.Model):
-    __tablename__ = 'users_roles'
+# class UserRole(db.Model):
+#     __tablename__ = 'users_roles'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id))
-    role_id = db.Column(UUID(as_uuid=True), ForeignKey(Role.id))
+
