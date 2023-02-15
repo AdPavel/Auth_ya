@@ -1,6 +1,8 @@
 import uuid
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+
 from .db import db
 
 

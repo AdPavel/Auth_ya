@@ -7,7 +7,6 @@ services:
     env_file: ./.env
     volumes:
       - ./db/pg_data:/var/lib/postgresql/data/
-      #- ./db/restore/dump.sql:/docker-entrypoint-initdb.d/dump.sql
     ports:
     - "5432:5432"
     expose:
