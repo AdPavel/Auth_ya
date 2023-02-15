@@ -5,14 +5,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from database.db import db, init_db
 from database.db_models import User, Role, LogHistory, UserRole
-from .api.v1.roles import roles
+from api.v1.roles import roles
 
 
 def create_admin_role():
-    admin = Role(name='admin')
-    db.session.add(admin)
-    db.session.commit()
-
+    name = Role.query.filter_by(name='admin').first()
+    if not name:
+        admin = Role(name='admin')
+        db.session.add(admin)
+        db.session.commit()
 
 @backoff.on_exception(
     wait_gen=backoff.expo, exception=Exception,
@@ -44,10 +45,12 @@ def get_app() -> Flask:
 
     app.cli.add_command(create_superuser)
 
-
     return app
 
 
 if __name__ == '__main__':
     app = get_app()
-    app.run()
+    app.run(debug=True,
+            host='0.0.0.0',
+            port=8001,
+            )
