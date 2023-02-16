@@ -1,48 +1,35 @@
-from flask import Flask, request, jsonify, make_response
-# from flask_sqlalchemy import SQLAlchemy
-# import uuid
-# from werkzeug.security import generate_password_hash, check_password_hash
-# # import jwt
-# import datetime
-# from functools import wraps
+from flask import jsonify, Response
+from http import HTTPStatus
 from flask import Blueprint
 
-from database.db import db
 from database.db_models import Role, User
+from database import db_role_actions
+
 
 roles = Blueprint('roles', __name__, url_prefix='/roles')
 
 
 @roles.route('/create', methods=['POST'])
-def create_role():
-    # if not current_user.admin:
-    #     return jsonify({'message': 'Cannot perform that function!'})
+@db_role_actions.role_required
+def create_role(role_name):
 
-    data = request.get_json()
-    role_name = data['name']
-    name = Role.query.filter_by(name=role_name).first()
-    if name:
-        return jsonify({'message': 'This role is exist!'})
-
-    new_role = Role(name=role_name)
-    db.session.add(new_role)
-    db.session.commit()
-
-    return jsonify({'message': f'New role - "{role_name}" created!'})
+    response = db_role_actions.create_role(role_name)
+    if response.success:
+        return Response('Роль создана', status=HTTPStatus.CREATED)
+    else:
+        return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
-@roles.route('/delete', methods=['DELETE'])
-def delete_role():
-    data = request.get_json()
-    role_for_delete = Role.query.filter_by(id=data['id']).first()
+@roles.route('/delete/<uuid:role_id>', methods=['DELETE'])
+def delete_role(role_id):
+    if not role_id:
+        return Response('Не указа id роли для удаления', status=HTTPStatus.BAD_REQUEST)
 
-    if not delete_role:
-        return jsonify({'message': 'No role found!'})
-
-    db.session.delete(role_for_delete)
-    db.session.commit()
-
-    return jsonify({'message': 'Role deleted!'})
+    response = db_role_actions.delete_role(role_id)
+    if response.success:
+        return Response('Роль удалена', status=HTTPStatus.OK)
+    else:
+        return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
 @roles.route('', methods=['GET'])
@@ -60,33 +47,44 @@ def get_all_roles():
     return jsonify({'roles': output})
 
 
+@roles.route('/change/<uuid:role_id>', methods=['PUT'])
+@db_role_actions.role_required
+def change_role(new_name, role_id):
+
+    response = db_role_actions.update_role(new_name, role_id)
+    if response.success:
+        return Response('Роль изменена', status=HTTPStatus.CREATED)
+    else:
+        return Response(response.message, status=HTTPStatus.BAD_REQUEST)
+
+
 @roles.route('/<uuid:user_id>', methods=['GET'])
 def get_user_roles(user_id):
+    if not user_id:
+        Response('Не указан id пользователя', status=HTTPStatus.BAD_REQUEST)
 
-    user_roles = User.query.filter_by(id=user_id).one()
-
-    # query.filter_by()  all()
-    output = [role for role in user_roles.role]
-
-    # for role in user_roles:
-    #     role_data = {}
-    #     role_data['id'] = role.id
-    #     role_data['name'] = role.name
-    #     output.append(role_data)
-
-    return jsonify({f'{user_roles.login}': output})
+    user = User.query.filter_by(id=user_id).one()
+    output = [{'role': role.name} for role in user.role]
+    return jsonify({f'{user.login}': output})
 
 
 @roles.route('/<uuid:user_id>/create', methods=['POST'])
-def set_user_roles(user_id):
+@db_role_actions.role_required
+def set_user_role(role_name, user_id):
 
-    data = request.get_json()
-    role_name = data.get('name', None)
-    user = User.query.filter_by(id=user_id).one()
-    role = Role.query.filter_by(name=role_name).one()
+    response = db_role_actions.set_or_del_user_role(user_id, role_name)
+    if response.success:
+        return Response('Роль назначена', status=HTTPStatus.CREATED)
+    else:
+        return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
-    user.role.append(role)
-    db.session.add(user)
-    db.session.commit()
 
-    return jsonify({f'{user.login}': f'Set role - {role.name}'})
+@roles.route('/<uuid:user_id>/delete', methods=['DELETE'])
+@db_role_actions.role_required
+def delete_user_role(role_name, user_id):
+
+    response = db_role_actions.set_or_del_user_role(user_id, role_name, is_delete=True)
+    if response.success:
+        return Response('Роль удалена', status=HTTPStatus.OK)
+    else:
+        return Response(response.message, status=HTTPStatus.BAD_REQUEST)
