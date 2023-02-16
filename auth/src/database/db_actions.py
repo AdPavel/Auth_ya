@@ -48,8 +48,28 @@ def create_user(login: str, password: str) -> ActionResponse:
     )
 
 
-def get_user(login: str, password: str) -> ActionResponse:
+def get_user_by_login(login: str) -> Union[None, User]:
     user = User.query.filter_by(login=login).first()
+    return user
+
+
+def get_user_by_id(id: UUID) -> Union[None, User]:
+    user = User.query.filter_by(id=id).first()
+    return user
+
+
+def change_user_login(user: User, login: str):
+    user.login = login
+    db.session.commit()
+
+
+def change_user_password(user: User, password: str):
+    user.password = generate_password_hash(password, method='sha256')
+    db.session.commit()
+
+
+def get_user(login: str, password: str) -> ActionResponse:
+    user = get_user_by_login(login)
     if not user:
         return ActionResponse(
             success=False,
