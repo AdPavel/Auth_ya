@@ -5,8 +5,8 @@ from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
 
-from .db import db
-from .db_models import User, Role, users_roles, LogHistory
+from database.db import db
+from database.db_models import User, Role, users_roles, LogHistory
 
 
 class ActionResponse(BaseModel):

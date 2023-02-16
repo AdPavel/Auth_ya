@@ -5,8 +5,11 @@ import click
 from database.db import db, init_db
 from database.db_actions import create_user, set_role, create_role
 from database.db_models import User, Role, LogHistory
+from flask_jwt_extended import JWTManager
 from api.v1.roles import roles
 from api.v1.account import account
+from utils.settings import settings
+from datetime import timedelta
 
 
 @backoff.on_exception(
@@ -14,7 +17,15 @@ from api.v1.account import account
     max_tries=10
 )
 def get_app() -> Flask:
+
     app = Flask(__name__)
+
+    app.config['JWT_SECRET_KEY'] = settings.secret_key
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=settings.access_token_expires_hours)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=settings.refresh_token_expires_days)
+
+    jwt_manager = JWTManager(app)
+
     init_db(app)
     app.app_context().push()
     db.create_all()
