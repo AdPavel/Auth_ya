@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
-from .db import db
+from database.db import db
 
 
 users_roles = db.Table('users_roles',

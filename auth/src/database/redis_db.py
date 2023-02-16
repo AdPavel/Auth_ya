@@ -1,6 +1,6 @@
 import redis
 
-from ..utils.settings import settings
+from utils.settings import settings
 
 host = settings.redis_host
 port = settings.redis_port
