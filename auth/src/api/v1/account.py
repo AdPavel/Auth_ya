@@ -4,7 +4,8 @@ from http import HTTPStatus
 from database import db_actions
 from database.redis_db import redis_app
 from flask import Blueprint, request, Response, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jti, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jti, jwt_required, get_jwt_identity, \
+    get_jwt
 from utils.settings import settings
 
 account = Blueprint('account', __name__, url_prefix='/account')
@@ -96,3 +97,12 @@ def get_log_history():
     user_id = get_jwt_identity()
     history = db_actions.get_user_log_history(user_id)
     return jsonify(history)
+
+
+@account.route('/logout', methods=['GET'])
+@jwt_required(verify_type=False)
+def logout():
+
+    jti = get_jwt()['jti']
+    redis_app.set(jti, '', ex=settings.access_token_expires_hours)
+    return jsonify('ok')

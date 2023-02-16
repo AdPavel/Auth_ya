@@ -10,6 +10,7 @@ from api.v1.roles import roles
 from api.v1.account import account
 from utils.settings import settings
 from datetime import timedelta
+from database.redis_db import redis_app
 
 
 @backoff.on_exception(
@@ -24,7 +25,7 @@ def get_app() -> Flask:
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=settings.access_token_expires_hours)
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=settings.refresh_token_expires_days)
 
-    jwt_manager = JWTManager(app)
+    jwt = JWTManager(app)
 
     init_db(app)
     app.app_context().push()
@@ -33,6 +34,12 @@ def get_app() -> Flask:
 
     app.register_blueprint(roles, url_prefix='/api/v1/roles')
     app.register_blueprint(account, url_prefix='/api/v1/account')
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+        jti = jwt_payload['jti']
+        token_in_redis = redis_app.get(jti)
+        return token_in_redis is not None
 
     @app.cli.command("create_superuser")
     @click.argument("login")
