@@ -88,3 +88,11 @@ def change_password():
 
     db_actions.change_user_password(user, new_password)
     return Response('Successful operation', status=HTTPStatus.OK)
+
+
+@account.route('/history', methods=['GET'])
+@jwt_required()
+def get_log_history():
+    user_id = get_jwt_identity()
+    history = db_actions.get_user_log_history(user_id)
+    return jsonify(history)

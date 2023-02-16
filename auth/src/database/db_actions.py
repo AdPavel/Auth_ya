@@ -90,6 +90,23 @@ def get_user(login: str, password: str) -> ActionResponse:
         )
 
 
+def get_user_log_history(user_id: UUID) -> list:
+    log_history = (
+        LogHistory.query
+                  .filter_by(user_id=user_id)
+                  .order_by(LogHistory.login_time.desc())
+                  .limit(10)
+    )
+    result = [
+        {
+            'id': log.id,
+            'user_agent': log.user_agent,
+            'login_date': log.login_time
+        } for log in log_history
+    ]
+    return result
+
+
 def set_role(user, superuser_role) -> ActionResponse:
     # user_role = users_roles(user_id=user_id, role_id=role_id)
     user.role.append(superuser_role)
