@@ -3,7 +3,8 @@ from flask import Flask
 import click
 
 from database.db import db, init_db
-from database.db_actions import create_user, set_role, create_role
+from database.db_actions import create_user
+from database import db_role_actions
 from database.db_models import User, Role, LogHistory
 from api.v1.roles import roles
 from api.v1.account import account
@@ -18,7 +19,7 @@ def get_app() -> Flask:
     init_db(app)
     app.app_context().push()
     db.create_all()
-    create_role('admin')
+    db_role_actions.create_role('admin')
 
     app.register_blueprint(roles, url_prefix='/api/v1/roles')
     app.register_blueprint(account, url_prefix='/api/v1/account')
@@ -31,7 +32,7 @@ def get_app() -> Flask:
         response = create_user(login, password)
         if response.success:
             superuser_role = Role.query.filter_by(name='admin').first()
-            set_role(response.obj, superuser_role)#(response.obj.id, superuser_role.id)
+            db_role_actions.set_role(response.obj, superuser_role)
 
     app.cli.add_command(create_superuser)
 
