@@ -1,12 +1,15 @@
 from datetime import timedelta
 from http import HTTPStatus
 
-from database import db_actions
 from database.redis_db import redis_app
 from flask import Blueprint, request, Response, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jti, jwt_required, get_jwt_identity, \
     get_jwt
+
 from utils.settings import settings
+from database import db_actions
+from database import db_role_actions
+
 
 account = Blueprint('account', __name__, url_prefix='/account')
 
@@ -116,6 +119,8 @@ def refresh():
 
 
 @account.route('', methods=['GET'])
+@jwt_required()
+@db_role_actions.admin_access
 def get_all_users():
 
     output = db_actions.get_users()
