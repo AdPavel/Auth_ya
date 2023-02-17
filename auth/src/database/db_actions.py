@@ -9,6 +9,7 @@ from database.db import db
 from database.db_models import User, Role, LogHistory
 
 
+
 class ActionResponse(BaseModel):
     success: bool
     obj: Union[None, User, Role, LogHistory]

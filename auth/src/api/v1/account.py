@@ -48,6 +48,7 @@ def login():
         access_token = create_access_token(identity=user.id, fresh=True)
         refresh_token = create_refresh_token(identity=user.id)
 
+
         refresh_key = get_jti(refresh_token)
         access_key = get_jti(access_token)
 
@@ -101,6 +102,7 @@ def get_log_history():
     user_id = get_jwt_identity()
     history = db_actions.get_user_log_history(user_id)
     return jsonify(history)
+
 
 # работает тоолько для ACCESS, как то можно из фронта на одну ручку отправлять токены access и refresh
 @account.route('/logout', methods=['DELETE'])
