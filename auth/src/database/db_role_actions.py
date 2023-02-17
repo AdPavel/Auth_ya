@@ -3,6 +3,7 @@ from flask import request, Response
 from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel
 from typing import Union
+from flask_jwt_extended import get_jwt_identity
 
 from .db import db
 from .db_models import User, Role
@@ -21,6 +22,18 @@ def role_required(f):
 
         return f(role_name, *args, **kwargs)
     return decorated
+
+
+def admin_access(f):
+    @wraps(f)
+    def decorate(*args, **kwargs):
+        user_id = get_jwt_identity()
+        admin = Role.query.filter_by(name='admin').first()
+        user = User.query.filter_by(id=user_id).first()
+        if admin not in user.role:
+            return Response('Необходима роль admin', status=HTTPStatus.FORBIDDEN)
+        return f(*args, **kwargs)
+    return decorate
 
 
 class ActionResponse(BaseModel):
