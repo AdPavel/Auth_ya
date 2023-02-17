@@ -1,12 +1,15 @@
 from datetime import timedelta
 from http import HTTPStatus
 
-from database import db_actions
 from database.redis_db import redis_app
 from flask import Blueprint, request, Response, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jti, jwt_required, get_jwt_identity, \
     get_jwt
+
 from utils.settings import settings
+from database import db_actions
+from database import db_role_actions
+
 
 account = Blueprint('account', __name__, url_prefix='/account')
 
@@ -47,13 +50,6 @@ def login():
 
         access_token = create_access_token(identity=user.id, fresh=True)
         refresh_token = create_refresh_token(identity=user.id)
-
-
-        refresh_key = get_jti(refresh_token)
-        access_key = get_jti(access_token)
-
-        # redis_app.set(access_key, str(user.id), ex=timedelta(days=settings.access_token_expires_hours))
-        # redis_app.set(refresh_key, str(user.id), ex=timedelta(days=settings.refresh_token_expires_days))
 
         return jsonify(
             access_token=access_token,
@@ -103,8 +99,7 @@ def get_log_history():
     history = db_actions.get_user_log_history(user_id)
     return jsonify(history)
 
-
-# работает тоолько для ACCESS, как то можно из фронта на одну ручку отправлять токены access и refresh
+# работает для ACCESS и Refresh, отправляем по очереди
 @account.route('/logout', methods=['DELETE'])
 @jwt_required(verify_type=False)
 def logout():
@@ -112,21 +107,20 @@ def logout():
     jti = token["jti"]
     ttype = token["type"]
     redis_app.set(jti, '', ex=timedelta(days=settings.access_token_expires_hours))
-    return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
+    return Response(f"{ttype.capitalize()} токен отозван", status=HTTPStatus.OK)
 
-# не доделал ещё
+
 @account.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
     current_user = get_jwt_identity()
     access_token = create_access_token(identity=current_user)
-    access_jti = get_jti(access_token)
-    # redis_app.set(access_jti, '', ex=timedelta(days=settings.access_token_expires_hours) * 1.2)
-    ret = {'access_token': access_token}
-    return jsonify(ret), 201
+    return jsonify({'access_token': access_token})
 
 
 @account.route('', methods=['GET'])
+@jwt_required()
+@db_role_actions.admin_access
 def get_all_users():
 
     output = db_actions.get_users()

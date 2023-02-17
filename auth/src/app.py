@@ -26,9 +26,6 @@ def get_app() -> Flask:
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=settings.access_token_expires_hours)
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=settings.refresh_token_expires_days)
 
-    # app.config['JWT_BLACKLIST_ENABLED'] = True # без этого тоже работает
-    # app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access'] #, 'refresh'] - исключить из листа рефреш?
-
     jwt = JWTManager(app)
 
     init_db(app)
@@ -62,7 +59,8 @@ def get_app() -> Flask:
 
 if __name__ == '__main__':
     app = get_app()
-    app.run(debug=True,
-            host='0.0.0.0',
-            port=8001,
-            )
+    # app.run(debug=True,
+    #         host='0.0.0.0',
+    #         port=8001,
+    #         )
+    app.run()
