@@ -6,7 +6,8 @@ from typing import Union
 from datetime import datetime
 
 from database.db import db
-from database.db_models import User, Role, users_roles, LogHistory
+from database.db_models import User, Role, LogHistory
+
 
 
 class ActionResponse(BaseModel):
@@ -107,29 +108,6 @@ def get_user_log_history(user_id: UUID) -> list:
     return result
 
 
-def set_role(user, superuser_role) -> ActionResponse:
-    # user_role = users_roles(user_id=user_id, role_id=role_id)
-    user.role.append(superuser_role)
-    db.session.add(user)
-    db.session.commit()
-
-    return ActionResponse(
-        success=True,
-        obj=user_role,
-        message=None
-    )
-# def set_role(user_id: UUID, role_id: UUID) -> ActionResponse:
-#     user_role = users_roles(user_id=user_id, role_id=role_id)
-#     db.session.add(user_role)
-#     db.session.commit()
-#
-#     return ActionResponse(
-#         success=True,
-#         obj=user_role,
-#         message=None
-#     )
-
-
 def create_role(name: str):
     role = Role(name=name)
     try:
@@ -147,3 +125,16 @@ def create_role(name: str):
         obj=role,
         message=None
     )
+
+
+def get_users():
+    all_users = User.query.all()
+    output = []
+
+    for user in all_users:
+        user_data = {}
+        user_data['id'] = user.id
+        user_data['login'] = user.login
+        output.append(user_data)
+
+    return output

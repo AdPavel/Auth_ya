@@ -47,8 +47,13 @@ def login():
 
         access_token = create_access_token(identity=user.id, fresh=True)
         refresh_token = create_refresh_token(identity=user.id)
-        key = get_jti(refresh_token)
-        redis_app.set(key, str(user.id), ex=timedelta(days=settings.refresh_token_expires_days))
+
+
+        refresh_key = get_jti(refresh_token)
+        access_key = get_jti(access_token)
+
+        # redis_app.set(access_key, str(user.id), ex=timedelta(days=settings.access_token_expires_hours))
+        # redis_app.set(refresh_key, str(user.id), ex=timedelta(days=settings.refresh_token_expires_days))
 
         return jsonify(
             access_token=access_token,
@@ -99,10 +104,31 @@ def get_log_history():
     return jsonify(history)
 
 
-@account.route('/logout', methods=['GET'])
+# работает тоолько для ACCESS, как то можно из фронта на одну ручку отправлять токены access и refresh
+@account.route('/logout', methods=['DELETE'])
 @jwt_required(verify_type=False)
 def logout():
+    token = get_jwt()
+    jti = token["jti"]
+    ttype = token["type"]
+    redis_app.set(jti, '', ex=timedelta(days=settings.access_token_expires_hours))
+    return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
 
-    jti = get_jwt()['jti']
-    redis_app.set(jti, '', ex=settings.access_token_expires_hours)
-    return jsonify('ok')
+# не доделал ещё
+@account.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_user)
+    access_jti = get_jti(access_token)
+    # redis_app.set(access_jti, '', ex=timedelta(days=settings.access_token_expires_hours) * 1.2)
+    ret = {'access_token': access_token}
+    return jsonify(ret), 201
+
+
+@account.route('', methods=['GET'])
+def get_all_users():
+
+    output = db_actions.get_users()
+
+    return jsonify({'Users': output})
