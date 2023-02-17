@@ -47,9 +47,7 @@ def get_all_roles():
     output = []
 
     for role in all_roles:
-        role_data = {}
-        role_data['id'] = role.id
-        role_data['name'] = role.name
+        role_data = {'id': role.id, 'name': role.name}
         output.append(role_data)
 
     return jsonify({'roles': output})

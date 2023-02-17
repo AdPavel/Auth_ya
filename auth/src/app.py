@@ -1,5 +1,5 @@
 import backoff
-from flask import Flask
+from flask import Flask, send_from_directory
 import click
 
 from database.db import db, init_db
@@ -7,6 +7,7 @@ from database.db_actions import create_user
 from database import db_role_actions
 from database.db_models import User, Role, LogHistory
 from flask_jwt_extended import JWTManager
+from flask_swagger_ui import get_swaggerui_blueprint
 from api.v1.roles import roles
 from api.v1.account import account
 from utils.settings import settings
@@ -33,11 +34,20 @@ def get_app() -> Flask:
     db.create_all()
     db_role_actions.create_role('admin')
 
+    swagger_url = '/apidocs/'
+    api_url = '/doc/openapi.yml'
+    swagger_blueprint = get_swaggerui_blueprint(swagger_url, api_url)
+
+    app.register_blueprint(swagger_blueprint)
     app.register_blueprint(roles, url_prefix='/api/v1/roles')
     app.register_blueprint(account, url_prefix='/api/v1/account')
 
+    @app.route('/doc/<path:path>')
+    def send_static(path):
+        return send_from_directory('doc', path)
+
     @jwt.token_in_blocklist_loader
-    def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+    def check_if_token_is_revoked(_jwt_header, jwt_payload: dict):
         jti = jwt_payload['jti']
         token_in_redis = redis_app.get(jti)
         return token_in_redis is not None
@@ -59,8 +69,4 @@ def get_app() -> Flask:
 
 if __name__ == '__main__':
     app = get_app()
-    # app.run(debug=True,
-    #         host='0.0.0.0',
-    #         port=8001,
-    #         )
     app.run()

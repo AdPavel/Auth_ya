@@ -6,7 +6,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from database.db import db
 
 
-users_roles = db.Table('users_roles',
+users_roles = db.Table(
+    'users_roles',
     db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False),
     db.Column('user_id', UUID(as_uuid=True), ForeignKey('users.id')),
     db.Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id'))
@@ -43,9 +44,3 @@ class Role(db.Model):
 
     def __repr__(self):
         return f'<Role {self.name}>'
-
-
-# class UserRole(db.Model):
-#     __tablename__ = 'users_roles'
-
-

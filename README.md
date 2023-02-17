@@ -9,3 +9,8 @@ pip install - r auth/requirements.txt
 cd auth/src
 gunicorn --bind 0.0.0.0:8000 wsgi_app:app 
 ```
+### С помощью docker
+```
+docker-compose -d --build up
+```
+Документация к API доступна по адресу http://127.0.0.1:8001/apidocs/
