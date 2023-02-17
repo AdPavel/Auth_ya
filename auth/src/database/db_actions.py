@@ -9,7 +9,6 @@ from database.db import db
 from database.db_models import User, Role, LogHistory
 
 
-
 class ActionResponse(BaseModel):
     success: bool
     obj: Union[None, User, Role, LogHistory]
@@ -92,12 +91,10 @@ def get_user(login: str, password: str) -> ActionResponse:
 
 
 def get_user_log_history(user_id: UUID) -> list:
-    log_history = (
-        LogHistory.query
-                  .filter_by(user_id=user_id)
-                  .order_by(LogHistory.login_time.desc())
-                  .limit(10)
-    )
+    log_history = (LogHistory.query
+                             .filter_by(user_id=user_id)
+                             .order_by(LogHistory.login_time.desc())
+                             .limit(10))
     result = [
         {
             'id': log.id,
@@ -132,9 +129,7 @@ def get_users():
     output = []
 
     for user in all_users:
-        user_data = {}
-        user_data['id'] = user.id
-        user_data['login'] = user.login
+        user_data = {'id': user.id, 'login': user.login}
         output.append(user_data)
 
     return output

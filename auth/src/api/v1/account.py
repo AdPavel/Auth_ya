@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from database.redis_db import redis_app
 from flask import Blueprint, request, Response, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jti, jwt_required, get_jwt_identity, \
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, \
     get_jwt
 
 from utils.settings import settings
@@ -98,6 +98,7 @@ def get_log_history():
     user_id = get_jwt_identity()
     history = db_actions.get_user_log_history(user_id)
     return jsonify(history)
+
 
 # работает для ACCESS и Refresh, отправляем по очереди
 @account.route('/logout', methods=['DELETE'])

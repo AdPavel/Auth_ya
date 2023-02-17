@@ -37,7 +37,7 @@ def get_app() -> Flask:
     app.register_blueprint(account, url_prefix='/api/v1/account')
 
     @jwt.token_in_blocklist_loader
-    def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+    def check_if_token_is_revoked(_jwt_header, jwt_payload: dict):
         jti = jwt_payload['jti']
         token_in_redis = redis_app.get(jti)
         return token_in_redis is not None
@@ -59,8 +59,4 @@ def get_app() -> Flask:
 
 if __name__ == '__main__':
     app = get_app()
-    # app.run(debug=True,
-    #         host='0.0.0.0',
-    #         port=8001,
-    #         )
     app.run()
