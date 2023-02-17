@@ -101,6 +101,13 @@ def set_role(user: User, role: Role) -> ActionResponse:
 
 
 def create_role(name: str):
+    role_name = Role.query.filter_by(name=name).first()
+    if role_name:
+        return ActionResponse(
+            success=False,
+            obj=None,
+            message='Роль уже существует'
+        )
     role = Role(name=name)
     try:
         db.session.add(role)
@@ -109,7 +116,7 @@ def create_role(name: str):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Роль с таким именем уже существует'
+            message='Role error'
         )
 
     return ActionResponse(
