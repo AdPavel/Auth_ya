@@ -35,16 +35,16 @@ def get_app() -> Flask:
     db_role_actions.create_role('admin')
 
     swagger_url = '/apidocs/'
-    api_url = '/doc/openapi.yml'
+    api_url = '/static/openapi.yml'
     swagger_blueprint = get_swaggerui_blueprint(swagger_url, api_url)
 
     app.register_blueprint(swagger_blueprint)
     app.register_blueprint(roles, url_prefix='/api/v1/roles')
     app.register_blueprint(account, url_prefix='/api/v1/account')
 
-    @app.route('/doc/<path:path>')
+    @app.route('/static/<path:path>')
     def send_static(path):
-        return send_from_directory('doc', path)
+        return send_from_directory('static', path)
 
     @jwt.token_in_blocklist_loader
     def check_if_token_is_revoked(_jwt_header, jwt_payload: dict):
