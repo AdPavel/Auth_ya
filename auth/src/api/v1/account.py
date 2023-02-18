@@ -22,13 +22,13 @@ def create_user():
     password = data.get('password', None)
 
     if not login or not password:
-        return Response('You have to pass login ans password', status=HTTPStatus.BAD_REQUEST)
+        return Response('You have to pass login and password', status=HTTPStatus.BAD_REQUEST)
 
     response = db_actions.create_user(login, password)
     if response.success:
         return Response('Successful operation', status=HTTPStatus.CREATED)
     else:
-        return Response(response.message, status=HTTPStatus.BAD_REQUEST)
+        return Response(response.message, status=HTTPStatus.CONFLICT)
 
 
 @account.route('/login', methods=['POST'])
@@ -56,7 +56,7 @@ def login():
             refresh_token=refresh_token
         )
     else:
-        return Response(response.message, status=HTTPStatus.BAD_REQUEST)
+        return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
 
 
 @account.route('/change_login', methods=['PUT'])
@@ -68,7 +68,7 @@ def change_login():
 
     user = db_actions.get_user_by_login(new_login)
     if user:
-        return Response('Пользователь с таким именем уже существует', status=HTTPStatus.BAD_REQUEST)
+        return Response('Пользователь с таким именем уже существует', status=HTTPStatus.CONFLICT)
 
     user_id = get_jwt_identity()
 
@@ -108,7 +108,7 @@ def logout():
     jti = token["jti"]
     ttype = token["type"]
     redis_app.set(jti, '', ex=timedelta(days=settings.access_token_expires_hours))
-    return Response(f"{ttype.capitalize()} токен отозван", status=HTTPStatus.OK)
+    return Response(f"{ttype.capitalize()} token has been revoked", status=HTTPStatus.OK)
 
 
 @account.route('/refresh', methods=['POST'])
