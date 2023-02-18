@@ -184,7 +184,7 @@ paths:
           description: Роль с таким именем уже существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/delete:
+  /api/v1/roles/delete/<role_id>:
     delete:
       tags:
         - roles
@@ -211,7 +211,7 @@ paths:
           description: Роль с таким id не существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/change:
+  /api/v1/roles/change/<role_id>:
     put:
       tags:
         - roles
@@ -284,6 +284,11 @@ paths:
           schema:
             type: string
           required: true
+        - in: query
+          name: user_id
+          schema:
+            type: integer
+          required: true
       responses:
         '200':
           description: Successful operation
@@ -307,6 +312,11 @@ paths:
           name: AccessToken
           schema:
             type: string
+          required: true
+        - in: query
+          name: user_id
+          schema:
+            type: integer
           required: true
       requestBody:
         content:
@@ -340,9 +350,14 @@ paths:
             type: string
           required: true
         - in: query
-          name: role_id
+          name: user_id
           schema:
             type: integer
+          required: true
+        - in: query
+          name: role_name
+          schema:
+            type: string
           required: true
       responses:
         '200':
