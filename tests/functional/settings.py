@@ -3,19 +3,26 @@ from pydantic import BaseSettings
 
 
 class Base(BaseSettings):
-    # Elastic section
-    els_port: int
-    els_host: str
+
+    # postgres
+    postgres_user: str
+    postgres_password: str
+    postgres_host: str
+    postgres_port: int
+    postgres_db: str
 
     # Redis section
     redis_host: str
     redis_port: int
 
-    test_service_url: str
+    # JWT section
+    secret_key: str
+    access_token_expires_hours: int
+    refresh_token_expires_days: int
 
     class Config:
 
-        env_file = f"{pathlib.Path(__file__).resolve().parent.parent.parent}/.env"
+        env_file = f"{pathlib.Path(__file__).resolve().parent.parent.parent.parent}/.env"
         env_file_encoding = 'utf-8'
 
 

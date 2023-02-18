@@ -4,7 +4,7 @@ services:
     container_name: db_test
     image: postgres:13.0-alpine
     restart: always
-    env_file: ../../.env
+    env_file: ./.env
     volumes:
       - ./db/pg_data:/var/lib/postgresql/data/
     ports:
@@ -27,21 +27,10 @@ services:
       - redis_test
       - db_test
 
-#  fastapi:
-#    container_name: fastapi
-#    build: ../../fastapi_srv
-#    image: fastapi-image
-#    env_file: ../../.env
-#    expose:
-#      - "8001"
-#    depends_on:
-#      - redis
-#      - els
-
   tests:
     container_name: tests
     image: auth-image
     volumes:
       - ./:/functional
     env_file: ../../.env
-#    entrypoint: /functional/script/run_tests.sh
+    entrypoint: /functional/script/run_tests.sh
