@@ -29,11 +29,6 @@ def get_app() -> Flask:
 
     jwt = JWTManager(app)
 
-    init_db(app)
-    app.app_context().push()
-    db.create_all()
-    db_role_actions.create_role('admin')
-
     swagger_url = '/apidocs/'
     api_url = '/static/openapi.yml'
     swagger_blueprint = get_swaggerui_blueprint(swagger_url, api_url)
@@ -67,6 +62,15 @@ def get_app() -> Flask:
     return app
 
 
-if __name__ == '__main__':
+def app_with_db() -> Flask:
     app = get_app()
+    init_db(app)
+    app.app_context().push()
+    db.create_all()
+    db_role_actions.create_role('admin')
+    return app
+
+
+if __name__ == '__main__':
+    app = app_with_db()
     app.run()

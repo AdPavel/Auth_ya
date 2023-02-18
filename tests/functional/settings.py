@@ -15,11 +15,6 @@ class Base(BaseSettings):
     redis_host: str
     redis_port: int
 
-    # JWT section
-    secret_key: str
-    access_token_expires_hours: int
-    refresh_token_expires_days: int
-
     class Config:
 
         env_file = f"{pathlib.Path(__file__).resolve().parent.parent.parent.parent}/.env"

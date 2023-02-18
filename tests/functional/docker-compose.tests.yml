@@ -4,18 +4,14 @@ services:
     container_name: db_test
     image: postgres:13.0-alpine
     restart: always
-    env_file: ./.env
-    volumes:
-      - ./db/pg_data:/var/lib/postgresql/data/
+    env_file: ../../.env
     ports:
       - "5432:5432"
     expose:
       - "5432"
-
   redis:
     container_name: redis_test
     image: redis:alpine
-
   auth:
     container_name: auth
     build: ./auth
@@ -24,9 +20,8 @@ services:
     expose:
       - "8001"
     depends_on:
-      - redis_test
-      - db_test
-
+      - redis
+      - db
   tests:
     container_name: tests
     image: auth-image
