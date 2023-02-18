@@ -1,3 +1,0 @@
-server.host: "0.0.0.0"
-elasticsearch.hosts: ["http://els:9200"]
-elasticsearch.username: "elastic"

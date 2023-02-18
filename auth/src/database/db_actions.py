@@ -38,7 +38,7 @@ def create_user(login: str, password: str) -> ActionResponse:
         return ActionResponse(
             success=False,
             obj=None,
-            message='Пользователь с таким login уже существует'
+            message='User with this login already exists'
         )
 
     return ActionResponse(
@@ -70,23 +70,17 @@ def change_user_password(user: User, password: str):
 
 def get_user(login: str, password: str) -> ActionResponse:
     user = get_user_by_login(login)
-    if not user:
-        return ActionResponse(
-            success=False,
-            obj=None,
-            message='Пользователь не найден'
-        )
-    if check_password_hash(user.password, password):
+    if user and check_password_hash(user.password, password):
         return ActionResponse(
             success=True,
             obj=user,
-            message='{"token": "token"}'
+            message=None
         )
     else:
         return ActionResponse(
             success=False,
             obj=None,
-            message='Неправильный пароль'
+            message='Wrong login or password'
         )
 
 

@@ -3,11 +3,11 @@
 pip install --upgrade pip --default-timeout=100 future
 pip install -r /functional/requirements.txt
 
-echo "Waiting for ElasticSearch..."
+echo "Waiting for Postgres..."
 
-python /functional/utils/wait_for_es.py
+python /functional/utils/wait_for_db.py
 
-echo "ElasticSearch started"
+echo "Postgres started"
 
 echo "Waiting for Redis..."
 

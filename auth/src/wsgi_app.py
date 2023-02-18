@@ -2,6 +2,6 @@ from gevent import monkey
 
 monkey.patch_all()
 
-from app import get_app
+from app import app_with_db
 
-app = get_app()
+app = app_with_db()

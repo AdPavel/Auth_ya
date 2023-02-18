@@ -14,3 +14,8 @@ gunicorn --bind 0.0.0.0:8000 wsgi_app:app
 docker-compose up -d --build
 ```
 Документация к API доступна по адресу http://127.0.0.1:8001/apidocs/
+### Тесты
+Для запуска тестов выполните команду
+```
+docker-compose -f tests/functional/docker-compose.tests.yml up --build
+```
