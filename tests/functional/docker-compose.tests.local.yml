@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  redis:
+    container_name: redis_test
+    image: redis:alpine
+    ports:
+    - 6379:6379
+
+  els:
+    container_name: elasticDB_test
+    image: elasticsearch:7.13.0
+    environment:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xms200m -Xmx200m"
+      xpack.security.enabled: "false"
+    ports:
+    - 9200:9200
+    expose:
+      - "9200"
+
+  fastapi:
+    container_name: fastapi
+    build: ../../fastapi_srv
+    image: fastapi-image
+    env_file: ../../.env
+    ports:
+    - 8001:8001
+    expose:
+      - "8001"
+    depends_on:
+      - redis
+      - els
+
+  kibana:
+    container_name: kibana
+    image: kibana:7.13.0
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    depends_on:
+      - els
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+
+#  tests:
+#    container_name: tests
+#    image: fastapi-image
+#    volumes:
+#      - ./:/functional
+#    env_file: ../../.env
+##    entrypoint: tail -F anything
+#    entrypoint: /functional/script/run_tests.sh
