@@ -8,6 +8,7 @@ from app import get_app
 from utils.settings import settings
 from database.db_models import User, Role, LogHistory
 from database.db import db
+from database import db_actions
 
 
 @pytest.fixture()
@@ -16,7 +17,7 @@ def app():
     yield app
 
 
-@pytest.fixture
+@pytest.fixture()
 def app_with_db(app):
 
     user = settings.postgres_user
@@ -35,13 +36,20 @@ def app_with_db(app):
 
     db.init_app(app)
     app.app_context().push()
+    db.drop_all()
     db.create_all()
 
     yield app
-    db.drop_all()
     db.session.remove()
 
 
 @pytest.fixture()
-def client_with_db(app_with_db):
+def create_user():
+    response = db_actions.create_user('test', 'test')
+    user = response.obj
+    return user
+
+
+@pytest.fixture()
+def client_with_db(app_with_db, create_user):
     return app_with_db.test_client()
