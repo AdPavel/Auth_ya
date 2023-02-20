@@ -65,7 +65,7 @@ def test_login(client_with_db, query_data: dict, expected_answer: dict):
 )
 def test_change_login(client_with_db, query_data: dict, expected_answer: dict):
     user = get_user_by_login('test')
-    access_token = create_access_token(identity=user.id, fresh=True)
+    access_token = create_access_token(identity=user.id)
     response = client_with_db.put(
         '/api/v1/account/change_login',
         headers={
@@ -98,7 +98,7 @@ def test_change_login(client_with_db, query_data: dict, expected_answer: dict):
 )
 def test_change_password(client_with_db, query_data: dict, expected_answer: dict):
     user = get_user_by_login('test')
-    access_token = create_access_token(identity=user.id, fresh=True)
+    access_token = create_access_token(identity=user.id)
     response = client_with_db.put(
         '/api/v1/account/change_password',
         headers={
@@ -122,7 +122,7 @@ def test_change_password(client_with_db, query_data: dict, expected_answer: dict
 
 def test_get_log_history(client_with_db):
     user = get_user_by_login('test')
-    access_token = create_access_token(identity=user.id, fresh=True)
+    access_token = create_access_token(identity=user.id)
     response = client_with_db.get(
         '/api/v1/account/history',
         headers={
@@ -144,11 +144,21 @@ def test_get_log_history(client_with_db):
 
 def test_logout(client_with_db):
     user = get_user_by_login('test')
-    access_token = create_access_token(identity=user.id, fresh=True)
+    access_token = create_access_token(identity=user.id)
+    refresh_token = create_refresh_token(identity=user.id)
     response = client_with_db.delete(
         '/api/v1/account/logout',
         headers={
             'Authorization': 'Bearer ' + access_token
+        }
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    response = client_with_db.delete(
+        '/api/v1/account/logout',
+        headers={
+            'Authorization': 'Bearer ' + refresh_token
         }
     )
 

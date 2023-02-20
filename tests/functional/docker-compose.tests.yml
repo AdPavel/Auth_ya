@@ -5,16 +5,18 @@ services:
     image: postgres:13.0-alpine
     restart: always
     env_file: ../../.env
-    ports:
-      - "5432:5432"
     expose:
       - "5432"
+
   redis:
     container_name: redis_test
     image: redis:alpine
+    expose:
+      - "6379"
+
   auth:
     container_name: auth
-    build: ./auth
+    build: ../../auth
     image: auth-image
     env_file: ../../.env
     expose:
@@ -22,6 +24,7 @@ services:
     depends_on:
       - redis
       - db
+
   tests:
     container_name: tests
     image: auth-image

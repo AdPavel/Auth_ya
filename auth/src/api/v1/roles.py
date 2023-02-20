@@ -15,19 +15,21 @@ roles = Blueprint('roles', __name__, url_prefix='/roles')
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-def create_role(role_name: str):
+def create_role(data):
 
-    response = db_role_actions.create_role(role_name)
+    response = db_role_actions.create_role(data['name'])
     if response.success:
         return Response('Роль создана', status=HTTPStatus.CREATED)
     else:
         return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
-@roles.route('/delete/<uuid:role_id>', methods=['DELETE'])
+@roles.route('/delete', methods=['DELETE'])
+@db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-def delete_role(role_id: uuid):
+def delete_role(data):
+    role_id =data['id']
     if not role_id:
         return Response('Не указа id роли для удаления', status=HTTPStatus.BAD_REQUEST)
 
@@ -53,13 +55,13 @@ def get_all_roles():
     return jsonify({'roles': output})
 
 
-@roles.route('/change/<uuid:role_id>', methods=['PUT'])
+@roles.route('/change', methods=['PUT'])
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-def change_role(new_name: str, role_id: uuid):
+def change_role(data):
 
-    response = db_role_actions.update_role(new_name, role_id)
+    response = db_role_actions.update_role(data['name'], data['id'])
     if response.success:
         return Response('Роль изменена', status=HTTPStatus.CREATED)
     else:
@@ -82,8 +84,8 @@ def get_user_roles(user_id: uuid):
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-def set_user_role(role_name: str, user_id: uuid):
-
+def set_user_role(data, user_id: uuid):
+    role_name = data['name']
     response = db_role_actions.set_or_del_user_role(user_id, role_name)
     if response.success:
         return Response('Роль назначена', status=HTTPStatus.CREATED)
@@ -95,8 +97,8 @@ def set_user_role(role_name: str, user_id: uuid):
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-def delete_user_role(role_name: str, user_id: uuid):
-
+def delete_user_role(data, user_id: uuid):
+    role_name = data['name']
     response = db_role_actions.set_or_del_user_role(user_id, role_name, is_delete=True)
     if response.success:
         return Response('Роль удалена', status=HTTPStatus.OK)
