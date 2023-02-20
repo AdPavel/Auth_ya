@@ -14,7 +14,7 @@ services:
     image: redis:alpine
   auth:
     container_name: auth
-    build: ./auth
+    build: ../../auth
     image: auth-image
     env_file: ../../.env
     expose:
