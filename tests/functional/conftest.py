@@ -9,6 +9,7 @@ from utils.settings import settings
 from database.db_models import User, Role, LogHistory
 from database.db import db
 from database import db_actions
+from database import db_role_actions
 
 
 @pytest.fixture()
@@ -48,6 +49,22 @@ def create_user():
     response = db_actions.create_user('test', 'test')
     user = response.obj
     return user
+
+
+@pytest.fixture()
+def create_user_admin():
+    response = db_actions.create_user('admin_test', 'test')
+    user = response.obj
+    admin_role = db_role_actions.create_role('admin')
+    admin = db_role_actions.set_or_del_user_role(user.id, 'admin')
+    return admin
+
+
+@pytest.fixture()
+def create_role():
+    response = db_role_actions.create_role('test_role')
+    role = response.obj
+    return role
 
 
 @pytest.fixture()
