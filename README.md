@@ -13,7 +13,12 @@ gunicorn --bind 0.0.0.0:8000 wsgi_app:app
 ```
 docker-compose up -d --build
 ```
-Документация к API доступна по адресу http://127.0.0.1:8001/apidocs/
+Создание "superuser" после запкуска контейнера подключиться к контейнеру "auth"
+```
+docker exec -it auth sh
+env FLASK_APP=wsgi_app python -m flask create_superuser <superUser> <password>
+```
+Документация к API доступна по адресу http://localhost:8001/apidocs/
 ### Тесты
 Для запуска тестов выполните команду
 ```
