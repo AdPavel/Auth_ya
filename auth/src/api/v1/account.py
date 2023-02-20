@@ -48,7 +48,7 @@ def login():
         user_agent = request.headers['user_agent']
         db_actions.add_record_to_log_history(user, user_agent)
 
-        access_token = create_access_token(identity=user.id, fresh=True)
+        access_token = create_access_token(identity=user.id)
         refresh_token = create_refresh_token(identity=user.id)
 
         return jsonify(
