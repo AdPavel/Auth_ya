@@ -7,6 +7,7 @@ from flask_jwt_extended import get_jwt_identity
 
 from .db import db
 from .db_models import User, Role
+from database.db_actions import get_user_by_id
 from functools import wraps
 from http import HTTPStatus
 
@@ -15,12 +16,12 @@ def role_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         data = request.get_json()
-        role_name = data.get('name', None)
+        role = data.get('name', None) or data.get('id', None)
 
-        if not role_name:
-            return Response('Не указана роль', status=HTTPStatus.BAD_REQUEST)
+        if not role:
+            return Response('Не указана роль или id роли', status=HTTPStatus.BAD_REQUEST)
 
-        return f(role_name, *args, **kwargs)
+        return f(data, *args, **kwargs)
     return decorated
 
 
@@ -28,12 +29,22 @@ def admin_access(f):
     @wraps(f)
     def decorate(*args, **kwargs):
         user_id = get_jwt_identity()
-        admin = Role.query.filter_by(name='admin').first()
-        user = User.query.filter_by(id=user_id).first()
+        admin = get_role_by_name('admin')
+        user = get_user_by_id(user_id)
         if admin not in user.role:
             return Response('Необходима роль admin', status=HTTPStatus.FORBIDDEN)
         return f(*args, **kwargs)
     return decorate
+
+
+def get_role_by_name(role_name: str):
+    role = Role.query.filter_by(name=role_name).first()
+    return role
+
+
+def get_role_by_id(_id: UUID):
+    role = Role.query.filter_by(id=_id).first()
+    return role
 
 
 class ActionResponse(BaseModel):
@@ -45,7 +56,7 @@ class ActionResponse(BaseModel):
         arbitrary_types_allowed = True
 
 
-def set_or_del_user_role(user_id, role_name, is_delete=False) -> ActionResponse:
+def set_or_del_user_role(user_id: UUID, role_name: str, is_delete=False) -> ActionResponse:
 
     if not user_id:
         return ActionResponse(
@@ -54,8 +65,8 @@ def set_or_del_user_role(user_id, role_name, is_delete=False) -> ActionResponse:
             message='Не указан id пользователя'
         )
 
-    user = User.query.filter_by(id=user_id).one()
-    role = Role.query.filter_by(name=role_name).one()
+    user = get_user_by_id(user_id)
+    role = get_role_by_name(role_name)
     if not user or not role:
         return ActionResponse(
             success=False,
@@ -94,27 +105,8 @@ def set_or_del_user_role(user_id, role_name, is_delete=False) -> ActionResponse:
     )
 
 
-def set_role(user: User, role: Role) -> ActionResponse:
-    user.role.append(role)
-    try:
-        db.session.add(user)
-        db.session.commit()
-    except IntegrityError:
-        return ActionResponse(
-            success=False,
-            obj=None,
-            message='Не удалось добавить роль пользователю'
-        )
-
-    return ActionResponse(
-        success=True,
-        obj=user,
-        message=None
-    )
-
-
 def create_role(name: str):
-    role_name = Role.query.filter_by(name=name).first()
+    role_name = get_role_by_name(name)
     if role_name:
         return ActionResponse(
             success=False,
@@ -140,7 +132,7 @@ def create_role(name: str):
 
 
 def delete_role(_id: UUID):
-    role_for_delete = Role.query.filter_by(id=_id).first()
+    role_for_delete = get_role_by_id(_id)
     if not role_for_delete:
         return ActionResponse(
             success=False,
@@ -165,12 +157,18 @@ def delete_role(_id: UUID):
 
 
 def update_role(new_name: str, _id: UUID):
-    role_for_update = Role.query.filter_by(id=_id).first()
+    role_for_update = get_role_by_id(_id)
     if not role_for_update:
         return ActionResponse(
             success=False,
             obj=None,
             message='Не найдена роль'
+        )
+    if role_for_update.name == new_name:
+        return ActionResponse(
+            success=False,
+            obj=None,
+            message='Роль уже существует'
         )
     role_for_update.name = new_name
     try:
