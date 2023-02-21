@@ -74,7 +74,7 @@ paths:
         '422':
           description: Wrong token
   /api/v1/account/logout:
-    get:
+    delete:
       tags:
         - auth
       summary: Выйти из аккаунта
@@ -160,12 +160,8 @@ paths:
       summary: Создать роль
       description: Создать роль
       operationId: create_role
-      parameters:
-        - in: header
-          name: AccessToken
-          schema:
-            type: string
-          required: true
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -184,23 +180,21 @@ paths:
           description: Роль с таким именем уже существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/delete/<role_id>:
+  /api/v1/roles/delete/{role_id}:
     delete:
       tags:
         - roles
       summary: Удалить роль
       description: Удалить роль
       operationId: delete_role
+      security:
+        - bearerAuth: []
       parameters:
-        - in: header
-          name: AccessToken
-          schema:
-            type: string
-          required: true
-        - in: query
+        - in: path
           name: role_id
           schema:
-            type: integer
+            type: string
+            format: uuid
           required: true
       responses:
         '200':
@@ -211,23 +205,21 @@ paths:
           description: Роль с таким id не существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/change/<role_id>:
+  /api/v1/roles/change/{role_id}:
     put:
       tags:
         - roles
       summary: Изменить роль
       description: Изменить роль
       operationId: change_role
+      security:
+        - bearerAuth: []
       parameters:
-        - in: header
-          name: AccessToken
-          schema:
-            type: string
-          required: true
-        - in: query
+        - in: path
           name: role_id
           schema:
-            type: integer
+            type: string
+            format: uuid
           required: true
       requestBody:
         content:
@@ -254,12 +246,8 @@ paths:
       summary: Посмотреть все роли
       description: Посмотреть все роли
       operationId: roles
-      parameters:
-        - in: header
-          name: AccessToken
-          schema:
-            type: string
-          required: true
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Successful operation
@@ -271,23 +259,21 @@ paths:
           description: Токен невалидный
         '403':
           description: Отказано в доступе
-  /api/v1/roles/<user_id>:
+  /api/v1/roles/{user_id}:
     get:
       tags:
         - user roles
       summary: Посмотреть все роли пользователя
       description: Посмотреть все роли пользователя
       operationId: user_roles
+      security:
+        - bearerAuth: []
       parameters:
-        - in: header
-          name: AccessToken
-          schema:
-            type: string
-          required: true
-        - in: query
+        - in: path
           name: user_id
           schema:
-            type: integer
+            type: string
+            format: uuid
           required: true
       responses:
         '200':
@@ -300,23 +286,21 @@ paths:
           description: Токен невалидный
         '403':
           description: Отказано в доступе
-  /api/v1/roles/<user_id>/create:
+  /api/v1/roles/{user_id}/create:
     post:
       tags:
         - user roles
       summary: Назначить роль пользователю
       description: Назначить роль пользователю
       operationId: user_create_role
+      security:
+        - bearerAuth: []
       parameters:
-        - in: header
-          name: AccessToken
-          schema:
-            type: string
-          required: true
-        - in: query
+        - in: path
           name: user_id
           schema:
-            type: integer
+            type: string
+            format: uuid
           required: true
       requestBody:
         content:
@@ -336,25 +320,23 @@ paths:
           description: Роль с таким именем уже существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/<user_id>/delete:
+  /api/v1/roles/{user_id}/delete/{role_name}:
     delete:
       tags:
         - user roles
       summary: Удалить у пользователя роль
       description: Удалить у пользователя роль
       operationId: user_delete_role
+      security:
+        - bearerAuth: []
       parameters:
-        - in: header
-          name: AccessToken
-          schema:
-            type: string
-          required: true
-        - in: query
+        - in: path
           name: user_id
           schema:
-            type: integer
+            type: string
+            format: uuid
           required: true
-        - in: query
+        - in: path
           name: role_name
           schema:
             type: string
