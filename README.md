@@ -18,7 +18,7 @@ gunicorn --bind 0.0.0.0:8000 wsgi_app:app
 ```
 docker-compose up -d --build
 ```
-Создание "superuser" после запуска контейнера подключиться к контейнеру "auth"
+### Обязательно создание "superuser" после запуска контейнера подключиться к контейнеру "auth"
 ```
 docker exec -it auth sh
 flask create_superuser <superUser> <password>
