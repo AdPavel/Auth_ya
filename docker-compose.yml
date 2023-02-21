@@ -7,13 +7,17 @@ services:
     env_file: ./.env
     volumes:
       - ./db/pg_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d auth -U app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     expose:
       - "5432"
 
   redis:
     container_name: redis
     image: redis:alpine
-
 
   auth:
     container_name: auth
@@ -24,8 +28,9 @@ services:
     expose:
       - "8001"
     depends_on:
-      - redis
-      - db
+      db:
+        condition: service_healthy
+
 
   nginx:
     container_name: dev_web

@@ -393,10 +393,10 @@ components:
           example: 123
     AccessToken:
       type: object
-        properties:
-          access_token:
-            type: string
-            example: 123
+      properties:
+        access_token:
+          type: string
+          example: 123
     RefreshToken:
       type: object
       properties:
