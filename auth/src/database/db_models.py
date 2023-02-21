@@ -18,8 +18,8 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    login = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    login = db.Column(db.String(30), unique=True, nullable=False)
+    password = db.Column(db.String(30), nullable=False)
     role = db.relationship('Role', secondary=users_roles, backref='users')
 
     def __repr__(self):
@@ -31,7 +31,7 @@ class LogHistory(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id))
-    user_agent = db.Column(db.String, nullable=False)
+    user_agent = db.Column(db.String(30), nullable=False)
     login_time = db.Column(db.DateTime, nullable=False)
 
 
@@ -39,8 +39,7 @@ class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    name = db.Column(db.String, unique=True, nullable=False)
-    # user = db.relationship('User', secondary=users_roles, backref='roles')
+    name = db.Column(db.String(30), unique=True, nullable=False)
 
     def __repr__(self):
         return f'<Role {self.name}>'
