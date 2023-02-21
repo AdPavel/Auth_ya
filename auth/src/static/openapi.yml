@@ -134,7 +134,7 @@ paths:
         '422':
           description: Wrong token
   /api/v1/account/history:
-    post:
+    get:
       tags:
         - auth
       summary: История входов
