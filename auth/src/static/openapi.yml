@@ -320,7 +320,7 @@ paths:
           description: Роль с таким именем уже существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/{user_id}/delete/{role_name}:
+  /api/v1/roles/{user_id}/delete:
     delete:
       tags:
         - user roles
@@ -336,7 +336,7 @@ paths:
             type: string
             format: uuid
           required: true
-        - in: path
+        - in: query
           name: role_name
           schema:
             type: string

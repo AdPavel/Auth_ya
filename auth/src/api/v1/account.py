@@ -27,8 +27,7 @@ def create_user():
     response = db_actions.create_user(login, password)
     if response.success:
         return Response('Successful operation', status=HTTPStatus.CREATED)
-    else:
-        return Response(response.message, status=HTTPStatus.CONFLICT)
+    return Response(response.message, status=HTTPStatus.CONFLICT)
 
 
 @account.route('/login', methods=['POST'])
@@ -55,8 +54,7 @@ def login():
             access_token=access_token,
             refresh_token=refresh_token
         )
-    else:
-        return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
+    return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
 
 
 @account.route('/change_login', methods=['PUT'])
