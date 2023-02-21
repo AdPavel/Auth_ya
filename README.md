@@ -21,9 +21,9 @@ docker-compose up -d --build
 Создание "superuser" после запуска контейнера подключиться к контейнеру "auth"
 ```
 docker exec -it auth sh
-env FLASK_APP=wsgi_app python -m flask create_superuser <superUser> <password>
+flask create_superuser <superUser> <password>
 ```
-Документация к API доступна по адресу http://localhost:8001/apidocs/
+Документация к API доступна по адресу http://localhost/apidocs/
 ### Тесты
 Для запуска тестов выполните команду
 ```
@@ -31,7 +31,14 @@ docker-compose -f tests/functional/docker-compose.tests.yml up --build
 ```
 ### Миграции
 Для создания новой миграции выполните команду
+
+ Локально
 ```
 cd auth/src
+flask db migrate
+```
+ Для контейнера
+```
+docker exec -it auth sh
 flask db migrate
 ```
