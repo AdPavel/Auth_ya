@@ -28,7 +28,7 @@ def upgrade():
     op.create_table('users',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('login', sa.String(length=30), nullable=False),
-    sa.Column('password', sa.String(length=30), nullable=False),
+    sa.Column('password', sa.String(length=100), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id'),
     sa.UniqueConstraint('login')
@@ -36,7 +36,7 @@ def upgrade():
     op.create_table('log_history',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
-    sa.Column('user_agent', sa.String(length=30), nullable=False),
+    sa.Column('user_agent', sa.Text(), nullable=False),
     sa.Column('login_time', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
