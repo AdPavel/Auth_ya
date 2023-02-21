@@ -30,7 +30,7 @@ class LogHistory(db.Model):
     __tablename__ = 'log_history'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id))
+    user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id), nullable=False)
     user_agent = db.Column(db.String(30), nullable=False)
     login_time = db.Column(db.DateTime, nullable=False)
 
