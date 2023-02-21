@@ -4,7 +4,12 @@
 ```
 pip install - r auth/requirements.txt
 ```
-2. Поднимите сервис
+2. Примените миграции
+```
+cd auth/src
+flask db upgrade
+```
+3. Поднимите сервис
 ```
 cd auth/src
 gunicorn --bind 0.0.0.0:8000 wsgi_app:app 
@@ -13,7 +18,7 @@ gunicorn --bind 0.0.0.0:8000 wsgi_app:app
 ```
 docker-compose up -d --build
 ```
-Создание "superuser" после запкуска контейнера подключиться к контейнеру "auth"
+Создание "superuser" после запуска контейнера подключиться к контейнеру "auth"
 ```
 docker exec -it auth sh
 env FLASK_APP=wsgi_app python -m flask create_superuser <superUser> <password>
@@ -23,4 +28,10 @@ env FLASK_APP=wsgi_app python -m flask create_superuser <superUser> <password>
 Для запуска тестов выполните команду
 ```
 docker-compose -f tests/functional/docker-compose.tests.yml up --build
+```
+### Миграции
+Для создания новой миграции выполните команду
+```
+cd auth/src
+flask db migrate
 ```
