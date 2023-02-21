@@ -2,7 +2,7 @@ import backoff
 from flask import Flask, send_from_directory
 import click
 
-from database.db import db, init_db
+from database.db import db, init_db, migrate
 from database.db_actions import create_user
 from database import db_role_actions
 from database.db_models import User, Role, LogHistory
@@ -65,12 +65,12 @@ def get_app() -> Flask:
 def app_with_db() -> Flask:
     app = get_app()
     init_db(app)
-    app.app_context().push()
-    db.create_all()
-    db_role_actions.create_role('admin')
+    migrate.init_app(app, db)
     return app
 
 
+app = app_with_db()
+
 if __name__ == '__main__':
-    app = app_with_db()
+    db_role_actions.create_role('admin')
     app.run()
