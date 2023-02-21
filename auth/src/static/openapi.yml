@@ -27,9 +27,9 @@ paths:
         '201':
           description: Successful operation
         '400':
-          description: You have to pass login and password
+          description: You have to pass valid email and password
         '409':
-          description: User with this login already exists
+          description: User with this email already exists
   /api/v1/account/login:
     post:
       tags:
@@ -50,9 +50,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
         '400':
-          description: You have to pass login and password
+          description: You have to pass email and password
         '401':
-          description: Wrong login or password
+          description: Wrong email or password
   /api/v1/account/refresh:
     post:
       tags:
@@ -93,8 +93,8 @@ paths:
     put:
       tags:
         - auth
-      summary: Изменить логин
-      description: Изменить логин
+      summary: Изменить email
+      description: Изменить email
       operationId: change_login
       security:
         - bearerAuth: []
@@ -102,14 +102,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/Email'
       responses:
         '200':
           description: Successful operation
+        '400':
+          description: Email is not valid
         '401':
           description: Missing Authorization Header
         '409':
-          description: User with this login already exists
+          description: User with this email already exists
         '422':
           description: Wrong token
   /api/v1/account/change_password:
@@ -355,12 +357,12 @@ components:
     User:
       type: object
       required:
-        - login
+        - email
         - password
       properties:
-        login:
+        email:
           type: string
-          example: best_user
+          example: test@mail.ru
         password:
           type: string
           example: best_password
@@ -385,12 +387,12 @@ components:
         refresh_token:
           type: string
           example: 123
-    Login:
+    Email:
       type: object
       properties:
-        login:
+        email:
           type: string
-          example: 'best_login'
+          example: 'test@mail.ru'
     Password:
       type: object
       properties:
@@ -405,7 +407,7 @@ components:
           example: 1
         user:
           type: string
-          example: 'best_user'
+          example: 'test@mail.ru'
         timestamp:
           type: integer
           example: 1675847177
