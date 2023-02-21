@@ -9,8 +9,8 @@ from database.db import db
 users_roles = db.Table(
     'users_roles',
     db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False),
-    db.Column('user_id', UUID(as_uuid=True), ForeignKey('users.id'), ondelete="CASCADE"),
-    db.Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id'), ondelete="CASCADE")
+    db.Column('user_id', UUID(as_uuid=True), ForeignKey('users.id', ondelete="CASCADE")),
+    db.Column('role_id', UUID(as_uuid=True), ForeignKey('roles.id', ondelete="CASCADE"))
 )
 
 
