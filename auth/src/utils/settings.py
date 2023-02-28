@@ -1,6 +1,6 @@
 import pathlib
 from pydantic import BaseSettings
-
+from typing import List
 
 class Base(BaseSettings):
 
@@ -19,6 +19,16 @@ class Base(BaseSettings):
     secret_key: str
     access_token_expires_hours: int
     refresh_token_expires_days: int
+
+    # Yandex section
+
+    yandex_client_id: str
+    yandex_client_secret: str
+    yandex_authorization_base_url: str
+    yandex_token_url: str
+
+
+
 
     class Config:
 
