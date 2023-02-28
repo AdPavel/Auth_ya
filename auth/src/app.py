@@ -1,6 +1,7 @@
 import backoff
 from flask import Flask, send_from_directory
 import click
+import os
 
 from database.db import db, init_db, migrate
 from database.db_actions import create_user
@@ -10,6 +11,7 @@ from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
 from api.v1.roles import roles
 from api.v1.account import account
+from api.v1.oauth import oauth
 from utils.settings import settings
 from datetime import timedelta
 from database.redis_db import redis_app
@@ -36,6 +38,7 @@ def get_app() -> Flask:
     app.register_blueprint(swagger_blueprint)
     app.register_blueprint(roles, url_prefix='/api/v1/roles')
     app.register_blueprint(account, url_prefix='/api/v1/account')
+    app.register_blueprint(oauth, url_prefix='/api/v1/oauth')
 
     @app.route('/static/<path:path>')
     def send_static(path):
@@ -72,5 +75,9 @@ def app_with_db() -> Flask:
 app = app_with_db()
 
 if __name__ == '__main__':
-    db_role_actions.create_role('admin')
-    app.run()
+    # db_role_actions.create_role('admin')
+
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
+
+    app.secret_key = os.urandom(24)
+    app.run(debug=True, host='localhost', port=8001)
