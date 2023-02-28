@@ -21,14 +21,12 @@ class Base(BaseSettings):
     refresh_token_expires_days: int
 
     # Yandex section
-
     yandex_client_id: str
     yandex_client_secret: str
     yandex_authorization_base_url: str
     yandex_token_url: str
 
-
-
+    redirect_uri: str
 
     class Config:
 
