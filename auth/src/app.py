@@ -57,8 +57,8 @@ def get_app() -> Flask:
 
         response = create_user(login, password)
         if response.success:
-            superuser_role = Role.query.filter_by(name='admin').first()
-            db_role_actions.set_or_del_user_role(response.obj.id, superuser_role.name)
+            db_role_actions.create_role('admin')
+            db_role_actions.set_or_del_user_role(response.obj.id, 'admin')
 
     app.cli.add_command(create_superuser)
 

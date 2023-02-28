@@ -7,6 +7,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
     get_jwt
 
 from utils.settings import settings
+from email_validator import validate_email, EmailNotValidError
 from database import db_actions
 from database import db_role_actions
 
@@ -18,28 +19,30 @@ account = Blueprint('account', __name__, url_prefix='/account')
 def create_user():
 
     data = request.get_json()
-    login = data.get('login', None)
+    login = data.get('email', None)
     password = data.get('password', None)
-
+    try:
+        validate_email(login, check_deliverability=False)
+    except EmailNotValidError:
+        return Response('You have to pass valid email and password', status=HTTPStatus.BAD_REQUEST)
     if not login or not password:
-        return Response('You have to pass login and password', status=HTTPStatus.BAD_REQUEST)
+        return Response('You have to pass valid email and password', status=HTTPStatus.BAD_REQUEST)
 
     response = db_actions.create_user(login, password)
     if response.success:
         return Response('Successful operation', status=HTTPStatus.CREATED)
-    else:
-        return Response(response.message, status=HTTPStatus.CONFLICT)
+    return Response(response.message, status=HTTPStatus.CONFLICT)
 
 
 @account.route('/login', methods=['POST'])
 def login():
 
     data = request.get_json()
-    login = data.get('login', None)
+    login = data.get('email', None)
     password = data.get('password', None)
 
     if not login or not password:
-        return Response('you have to pass login ans password', status=HTTPStatus.BAD_REQUEST)
+        return Response('you have to pass email ans password', status=HTTPStatus.BAD_REQUEST)
 
     response = db_actions.get_user(login, password)
     if response.success:
@@ -55,8 +58,7 @@ def login():
             access_token=access_token,
             refresh_token=refresh_token
         )
-    else:
-        return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
+    return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
 
 
 @account.route('/change_login', methods=['PUT'])
@@ -64,7 +66,12 @@ def login():
 def change_login():
 
     data = request.get_json()
-    new_login = data.get('login', None)
+    new_login = data.get('email', None)
+
+    try:
+        validate_email(new_login, check_deliverability=False)
+    except EmailNotValidError:
+        return Response('Email is not valid', status=HTTPStatus.BAD_REQUEST)
 
     user = db_actions.get_user_by_login(new_login)
     if user:

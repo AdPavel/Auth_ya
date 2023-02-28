@@ -19,7 +19,7 @@ class User(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     login = db.Column(db.String(30), unique=True, nullable=False)
-    password = db.Column(db.String(30), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
     role = db.relationship('Role', secondary=users_roles, backref='users', cascade="all, delete")
 
     def __repr__(self):
@@ -31,7 +31,7 @@ class LogHistory(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
-    user_agent = db.Column(db.String(30), nullable=False)
+    user_agent = db.Column(db.Text, nullable=False)
     login_time = db.Column(db.DateTime, nullable=False)
 
 
