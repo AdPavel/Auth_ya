@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
+from utils.password_generator import get_random_password
 
 from database.db import db
 from database.db_models import User, Role, LogHistory
@@ -28,7 +29,16 @@ def add_record_to_log_history(user: User, user_agent: str):
     db.session.commit()
 
 
-def create_user(login: str, password: str) -> ActionResponse:
+def create_user(login: str, password: str = '') -> ActionResponse:
+    user = get_user_by_login(login)
+    if user:
+        return ActionResponse(
+            success=False,
+            obj=None,
+            message='User with this login already exists')
+
+    if not password:
+        password = get_random_password()
     hashed_password = generate_password_hash(password, method='sha256')
     user = User(login=login, password=hashed_password)
     try:
@@ -38,7 +48,7 @@ def create_user(login: str, password: str) -> ActionResponse:
         return ActionResponse(
             success=False,
             obj=None,
-            message='User with this login already exists'
+            message='Error of creating user'
         )
 
     return ActionResponse(
