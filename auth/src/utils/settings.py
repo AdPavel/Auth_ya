@@ -2,6 +2,7 @@ import pathlib
 from pydantic import BaseSettings
 from typing import Any
 
+
 class Base(BaseSettings):
 
     # postgres
@@ -36,7 +37,6 @@ class Base(BaseSettings):
     google_scope: list[str]
 
     redirect_uri: str
-    google_redirect_uri: str
 
     class Config:
 
