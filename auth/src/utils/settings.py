@@ -27,7 +27,15 @@ class Base(BaseSettings):
     yandex_token_url: str
     yandex_info_url: str
 
+    # Google section
+    google_client_id: str
+    google_client_secret: str
+    google_authorization_base_url: str
+    google_token_url: str
+    google_info_url: str
+
     redirect_uri: str
+    google_redirect_uri: str
 
     class Config:
 

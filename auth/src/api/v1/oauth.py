@@ -20,6 +20,58 @@ def authorization():
     return redirect(authorization_url)
 
 
+@oauth.route('/google')
+def google_authorization():
+
+    scope = [
+        'openid',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile'
+    ]
+
+    oauth_provider = OAuth2Session(
+        client_id=settings.google_client_id,
+        scope=scope,
+        redirect_uri=settings.google_redirect_uri
+    )
+    authorization_url, state = oauth_provider.authorization_url(
+        settings.google_authorization_base_url,
+        prompt='select_account'
+    )
+
+    session['oauth_state'] = state
+    return redirect(authorization_url)
+
+
+@oauth.route('/google/callback', methods=['GET'])
+def google_callback():
+
+    oauth_provider = OAuth2Session(
+        client_id=settings.google_client_id,
+        redirect_uri='http://localhost:8001/api/v1/oauth/google/callback',
+        state=session['oauth_state']
+    )
+    oauth_provider.fetch_token(
+        token_url=settings.google_token_url,
+        client_secret=settings.google_client_secret,
+        authorization_response=request.url
+    )
+    content = oauth_provider.get(
+        url=settings.google_info_url,
+        params={'format': 'json'}
+    ).json()
+
+    response = db_social_actions.get_account_by_login(
+        email=content['email'],
+        user_id=content['id'],
+        provider='google'
+    )
+    if response.success:
+        db_actions.add_record_to_log_history(user=response.obj.user, user_agent=request.headers['user_agent'])
+        return get_tokens(response.obj.user)
+    return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
+
+
 @oauth.route('/yandex/callback', methods=['GET'])
 def callback():
 
