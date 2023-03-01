@@ -25,6 +25,7 @@ class Base(BaseSettings):
     yandex_client_secret: str
     yandex_authorization_base_url: str
     yandex_token_url: str
+    yandex_info_url: str
 
     redirect_uri: str
 
