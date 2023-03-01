@@ -3,14 +3,14 @@ from http import HTTPStatus
 
 from database.redis_db import redis_app
 from flask import Blueprint, request, Response, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, \
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, \
     get_jwt
 
 from utils.settings import settings
 from email_validator import validate_email, EmailNotValidError
 from database import db_actions
 from database import db_role_actions
-from api.v1.get_token import get_access_refresh_tokens
+from utils.token_generator import get_tokens
 
 account = Blueprint('account', __name__, url_prefix='/account')
 
@@ -46,7 +46,8 @@ def login():
 
     response = db_actions.get_user(login, password)
     if response.success:
-        return get_access_refresh_tokens(user=response.obj, user_agent=request.headers['user_agent'])
+        db_actions.add_record_to_log_history(user=response.obj, user_agent=request.headers['user_agent'])
+        return get_tokens(response.obj)
     return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
 
 

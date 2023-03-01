@@ -16,12 +16,11 @@ class ActionResponse(BaseModel):
         arbitrary_types_allowed = True
 
 
-def get_user_social_account_by_login(content: dict, provider: str = '') -> ActionResponse:
-    user = db_actions.get_user_by_login(content['default_email'])
+def get_account_by_login(email: str, user_id: str, provider: str = '') -> ActionResponse:
+    user = db_actions.get_user_by_login(email)
     user_social_account = SocialAccount.query.filter_by(user=user).first()
     if not user or not user_social_account:
-        response = create_social_account(content, provider)
-        # if response
+        response = create_account(email, user_id, provider)
         user_social_account = response.obj
     return ActionResponse(
         success=True,
@@ -30,12 +29,12 @@ def get_user_social_account_by_login(content: dict, provider: str = '') -> Actio
     )
 
 
-def create_social_account(content: dict, provider: str) -> ActionResponse:
-    response = db_actions.create_user(content['default_email'])
+def create_account(email: str, user_id: str, provider: str) -> ActionResponse:
+    response = db_actions.create_user(email)
     user_social_account = SocialAccount(
         user_id=response.obj.id,
         user=response.obj,
-        social_id=content['id'],
+        social_id=user_id,
         social_name=provider
     )
 
@@ -46,7 +45,7 @@ def create_social_account(content: dict, provider: str) -> ActionResponse:
         return ActionResponse(
             success=False,
             obj=None,
-            message='Error of social account'
+            message='Error with social account'
         )
 
     return ActionResponse(
@@ -54,4 +53,3 @@ def create_social_account(content: dict, provider: str) -> ActionResponse:
         obj=user_social_account,
         message=None
     )
-
