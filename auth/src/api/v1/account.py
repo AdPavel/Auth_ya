@@ -10,7 +10,7 @@ from utils.settings import settings
 from email_validator import validate_email, EmailNotValidError
 from database import db_actions
 from database import db_role_actions
-
+from api.v1.get_token import get_access_refresh_tokens
 
 account = Blueprint('account', __name__, url_prefix='/account')
 
@@ -46,18 +46,7 @@ def login():
 
     response = db_actions.get_user(login, password)
     if response.success:
-
-        user = response.obj
-        user_agent = request.headers['user_agent']
-        db_actions.add_record_to_log_history(user, user_agent)
-
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
-
-        return jsonify(
-            access_token=access_token,
-            refresh_token=refresh_token
-        )
+        return get_access_refresh_tokens(user=response.obj, user_agent=request.headers['user_agent'])
     return Response(response.message, status=HTTPStatus.UNAUTHORIZED)
 
 
