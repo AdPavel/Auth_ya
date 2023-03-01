@@ -15,7 +15,7 @@ def authorization():
     using an URL with a few key OAuth parameters.
     """
 
-    oauth_provider = OAuth2Session(settings.yandex_client_id)
+    oauth_provider = OAuth2Session(settings.yandex_client_id, redirect_uri=settings.redirect_uri)
     authorization_url, state = oauth_provider.authorization_url(settings.yandex_authorization_base_url)
 
     # State is used to prevent CSRF, keep this for later.
@@ -34,10 +34,11 @@ def callback():
     in the redirect URL. We will use that to obtain an access token.
     """
 
-    oauth_provider = OAuth2Session(settings.provider['client_id'], state=session['oauth_state'])
-    token = oauth_provider.fetch_token(settings.provider['token_url'],
-                                       client_secret=settings.provider['client_secret'],
+    oauth_provider = OAuth2Session(settings.yandex_client_id, state=session['oauth_state'])
+    token = oauth_provider.fetch_token(settings.yandex_token_url,
+                                       client_secret=settings.yandex_client_secret,
                                        authorization_response=request.url)
+    print(token)
 
     # At this point you can fetch protected resources but lets save
     # the token and show how this is done from a persisted token
