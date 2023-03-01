@@ -1,6 +1,6 @@
 import pathlib
 from pydantic import BaseSettings
-from typing import List
+from typing import Any
 
 class Base(BaseSettings):
 
@@ -33,6 +33,7 @@ class Base(BaseSettings):
     google_authorization_base_url: str
     google_token_url: str
     google_info_url: str
+    google_scope: list[str]
 
     redirect_uri: str
     google_redirect_uri: str
@@ -41,6 +42,12 @@ class Base(BaseSettings):
 
         env_file = f"{pathlib.Path(__file__).resolve().parent.parent.parent.parent}/.env"
         env_file_encoding = 'utf-8'
+
+        @classmethod
+        def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
+            if field_name == 'google_scope':
+                return [x for x in raw_val.split(',')]
+            return cls.json_loads(raw_val)
 
 
 settings = Base()

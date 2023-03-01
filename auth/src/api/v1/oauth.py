@@ -23,15 +23,9 @@ def authorization():
 @oauth.route('/google')
 def google_authorization():
 
-    scope = [
-        'openid',
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/userinfo.profile'
-    ]
-
     oauth_provider = OAuth2Session(
         client_id=settings.google_client_id,
-        scope=scope,
+        scope=settings.google_scope,
         redirect_uri=settings.google_redirect_uri
     )
     authorization_url, state = oauth_provider.authorization_url(
