@@ -36,6 +36,12 @@ class Base(BaseSettings):
     google_info_url: str
     google_scope: list[str]
 
+    # VK section
+    vk_client_id: str
+    vk_client_secret: str
+    vk_authorization_base_url: str
+    vk_token_url: str
+
     redirect_uri: str
 
     class Config:
