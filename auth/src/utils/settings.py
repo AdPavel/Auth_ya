@@ -5,6 +5,10 @@ from typing import Any
 
 class Base(BaseSettings):
 
+    # Jaeger section
+    jaeger_host: str
+    jaeger_port: str
+
     # postgres
     postgres_user: str
     postgres_password: str

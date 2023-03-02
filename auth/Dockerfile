@@ -4,7 +4,7 @@ RUN mkdir /install
 WORKDIR /install
 FROM base
 COPY --from=builder /install /usr/local
-RUN apk update && apk --no-cache add python3-dev libffi-dev gcc musl-dev make libpq
+RUN apk update && apk --no-cache add python3-dev libffi-dev gcc musl-dev make libpq g++
 
 WORKDIR /auth
 COPY requirements.txt requirements.txt

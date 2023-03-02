@@ -1,5 +1,5 @@
 import backoff
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, request
 import click
 import os
 
@@ -8,13 +8,34 @@ from database.db_actions import create_user
 from database import db_role_actions
 from database.db_models import User, Role, LogHistory
 from flask_jwt_extended import JWTManager
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from flask_swagger_ui import get_swaggerui_blueprint
 from api.v1.roles import roles
 from api.v1.account import account
 from api.v1.oauth import oauth
 from utils.settings import settings
+#from utils.jaeger import configure_tracer
 from datetime import timedelta
 from database.redis_db import redis_app
+from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from jaeger_client import Config
+from flask_opentracing import FlaskTracer
+
+
+def configure_tracer(jaeger_host: str, jaeger_port: str) -> None:
+    trace.set_tracer_provider(TracerProvider())
+    trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(
+            JaegerExporter(
+                agent_host_name=jaeger_host,
+                agent_port=jaeger_port,
+            )
+        )
+    )
+    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
 
 @backoff.on_exception(
@@ -24,6 +45,27 @@ from database.redis_db import redis_app
 def get_app() -> Flask:
 
     app = Flask(__name__)
+
+    jaeger_config = {
+        'sampler': {
+            'type': 'const',
+            'param': 1,
+        },
+    }
+
+    def setup_jaeger():
+        setup_config = Config(
+            config=jaeger_config,
+            service_name='auth-api',
+            validate=True,
+        )
+        return setup_config.initialize_tracer()
+
+    tracer = FlaskTracer(setup_jaeger, True, app=app)
+
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
+
+    app.secret_key = os.urandom(24)
 
     app.config['JWT_SECRET_KEY'] = settings.secret_key
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=settings.access_token_expires_hours)
@@ -39,6 +81,12 @@ def get_app() -> Flask:
     app.register_blueprint(roles, url_prefix='/api/v1/roles')
     app.register_blueprint(account, url_prefix='/api/v1/account')
     app.register_blueprint(oauth, url_prefix='/api/v1/oauth')
+
+    @app.before_request
+    def before_request():
+        request_id = request.headers.get('X-Request-Id')
+        if not request_id:
+            raise RuntimeError('request id is required')
 
     @app.route('/static/<path:path>')
     def send_static(path):
