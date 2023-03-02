@@ -14,7 +14,6 @@ from api.v1.roles import roles
 from api.v1.account import account
 from api.v1.oauth import oauth
 from utils.settings import settings
-#from utils.jaeger import configure_tracer
 from datetime import timedelta
 from database.redis_db import redis_app
 from opentelemetry import trace
@@ -25,6 +24,7 @@ from jaeger_client import Config
 from flask_opentracing import FlaskTracer
 
 
+# Это от либы opentelemetry
 def configure_tracer(jaeger_host: str, jaeger_port: str) -> None:
     trace.set_tracer_provider(TracerProvider())
     trace.get_tracer_provider().add_span_processor(
@@ -44,8 +44,15 @@ def configure_tracer(jaeger_host: str, jaeger_port: str) -> None:
 )
 def get_app() -> Flask:
 
+    # Это от либы opentelemetry
+    # configure_tracer()
+
     app = Flask(__name__)
 
+    # Это от либы opentelemetry
+    # FlaskInstrumentor().instrument_app(app)
+
+    # это от либы flask_opentracing
     jaeger_config = {
         'sampler': {
             'type': 'const',
@@ -53,6 +60,7 @@ def get_app() -> Flask:
         },
     }
 
+    # это от либы flask_opentracing
     def setup_jaeger():
         setup_config = Config(
             config=jaeger_config,
@@ -61,6 +69,7 @@ def get_app() -> Flask:
         )
         return setup_config.initialize_tracer()
 
+    # это от либы flask_opentracing
     tracer = FlaskTracer(setup_jaeger, True, app=app)
 
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
