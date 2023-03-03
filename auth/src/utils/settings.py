@@ -8,6 +8,7 @@ class Base(BaseSettings):
     # Jaeger section
     jaeger_host: str
     jaeger_port: str
+    jaeger_enable_console_trace: bool
 
     # postgres
     postgres_user: str
