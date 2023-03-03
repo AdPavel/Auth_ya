@@ -47,10 +47,12 @@ services:
       - auth
 
   jaeger:
+    container_name: jaeger
     image: jaegertracing/all-in-one:latest
     ports:
       - "6831:6831/udp"
       - "16686:16686"
+
 
 volumes:
   static:
