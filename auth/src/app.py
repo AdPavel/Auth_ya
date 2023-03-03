@@ -42,7 +42,7 @@ def get_tracer(app):
             BatchSpanProcessor(
                 JaegerExporter(
                     agent_host_name=settings.jaeger_host,
-                    agent_port=6831,
+                    agent_port=settings.jaeger_port,
                 )
             )
         )
