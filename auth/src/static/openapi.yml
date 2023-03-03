@@ -10,7 +10,65 @@ tags:
     description: API для управления доступами
   - name: user roles
     description: API для ролей у пользователя
+  - name: oauth
+    description: API регистрации через социальные сети
 paths:
+  /api/v1/oauth/{provider}:
+    get:
+      tags:
+        - oauth
+      summary: Зарегистрировать через социальную сеть
+      description: Зарегистрировать через социальную сеть
+      parameters:
+        - in: path
+          name: provider
+          schema:
+            type: string
+            enum:
+              - yandex
+              - vk
+              - google
+          required: true
+          description: Name of provider
+      responses:
+        '302':
+          description: Redirect to provider
+  /api/v1/oauth/{provider}/callback:
+    get:
+      tags:
+        - oauth
+      summary: Получить токены
+      description: Получить токены
+      parameters:
+        - in: path
+          name: provider
+          schema:
+            type: string
+            enum:
+              - yandex
+              - vk
+              - google
+          required: true
+          description: Name of provider
+        - in: query
+          name: state
+          schema:
+            type: string
+          required: true
+          description: State
+        - in: query
+          name: code
+          schema:
+            type: string
+          required: true
+          description: Code from provider
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
   /api/v1/account/create_user:
     post:
       tags:
