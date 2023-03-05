@@ -24,6 +24,8 @@ from utils.settings import settings
 from datetime import timedelta
 from database.redis_db import redis_app
 
+from redis_rate_limiter.rate_limiter import RateLimitExceeded
+from http import HTTPStatus
 
 def get_tracer(app):
 
@@ -64,8 +66,12 @@ def get_app() -> Flask:
     get_tracer(app)
 
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
-
     app.secret_key = os.urandom(24)
+
+    @app.errorhandler(RateLimitExceeded)
+    def handle_rate_limit_exceeded(e):
+        msg = {'satus': HTTPStatus.TOO_MANY_REQUESTS, 'msg': "RateLimitExceeded", 'success': False}
+        return msg
 
     app.config['JWT_SECRET_KEY'] = settings.secret_key
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=settings.access_token_expires_hours)
@@ -119,5 +125,4 @@ app = app_with_db()
 if __name__ == '__main__':
     db_role_actions.create_role('admin')
 
-    app.secret_key = os.urandom(24)
     app.run(debug=True, host='localhost', port=8001)
