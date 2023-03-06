@@ -29,7 +29,7 @@ def upgrade():
     sa.UniqueConstraint('social_id', 'social_name', name='social_pk')
     )
     with op.batch_alter_table('log_history', schema=None) as batch_op:
-        batch_op.create_unique_constraint(None, ['id'])
+        batch_op.create_unique_constraint(None, ['id', 'user_device_type'])
 
     with op.batch_alter_table('roles', schema=None) as batch_op:
         batch_op.create_unique_constraint(None, ['id'])

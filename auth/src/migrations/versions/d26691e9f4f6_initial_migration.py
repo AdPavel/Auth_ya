@@ -38,9 +38,13 @@ def upgrade():
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('user_agent', sa.Text(), nullable=False),
     sa.Column('login_time', sa.DateTime(), nullable=False),
+    sa.Column('user_device_type', sa.Text(), nullable=True),
+
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.PrimaryKeyConstraint('id', 'user_device_type'),
+    sa.UniqueConstraint('id', 'user_device_type'),
+
+    postgresql_partition_by='LIST (user_device_type)',
     )
     op.create_table('users_roles',
     sa.Column('id', sa.UUID(), nullable=False),
@@ -52,6 +56,21 @@ def upgrade():
     sa.UniqueConstraint('id')
     )
     # ### end Alembic commands ###
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_smart" PARTITION OF "log_history" FOR VALUES IN ('smart')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_mobile" PARTITION OF "log_history" FOR VALUES IN ('mobile')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_pc" PARTITION OF "log_history" FOR VALUES IN ('pc')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_tablet" PARTITION OF "log_history" FOR VALUES IN ('tablet')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_bot" PARTITION OF "log_history" FOR VALUES IN ('bot')"""
+    )
 
 
 def downgrade():
