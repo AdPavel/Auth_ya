@@ -5,6 +5,8 @@ from database.redis_db import redis_app
 from flask import Blueprint, request, Response, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, \
     get_jwt
+from redis_rate_limiter.config import basic_config
+from redis_rate_limiter.rate_limiter import RateLimiter
 
 from utils.settings import settings
 from email_validator import validate_email, EmailNotValidError
@@ -12,10 +14,12 @@ from database import db_actions
 from database import db_role_actions
 from utils.token_generator import get_tokens
 
-account = Blueprint('account', __name__, url_prefix='/account')
 
+account = Blueprint('account', __name__, url_prefix='/account')
+basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
 
 @account.route('/create_user', methods=['POST'])
+@RateLimiter(limit=1, period=timedelta(minutes=10))
 def create_user():
 
     data = request.get_json()
@@ -35,6 +39,7 @@ def create_user():
 
 
 @account.route('/login', methods=['POST'])
+@RateLimiter(limit=1, period=timedelta(minutes=10))
 def login():
 
     data = request.get_json()
@@ -53,6 +58,7 @@ def login():
 
 @account.route('/change_login', methods=['PUT'])
 @jwt_required()
+@RateLimiter(limit=1, period=timedelta(minutes=10))
 def change_login():
 
     data = request.get_json()
@@ -77,6 +83,7 @@ def change_login():
 
 @account.route('/change_password', methods=['PUT'])
 @jwt_required()
+@RateLimiter(limit=1, period=timedelta(minutes=10))
 def change_password():
 
     data = request.get_json()
@@ -91,6 +98,7 @@ def change_password():
 
 @account.route('/history', methods=['GET'])
 @jwt_required()
+@RateLimiter(limit=1, period=timedelta(minutes=10))
 def get_log_history():
     user_id = get_jwt_identity()
     history = db_actions.get_user_log_history(user_id)
@@ -119,6 +127,7 @@ def refresh():
 @account.route('', methods=['GET'])
 @jwt_required()
 @db_role_actions.admin_access
+@RateLimiter(limit=1, period=timedelta(minutes=10))
 def get_all_users():
 
     output = db_actions.get_users()
