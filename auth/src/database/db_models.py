@@ -1,9 +1,27 @@
 import uuid
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
-
 from database.db import db
+
+
+def create_partition(target, connection, **kw) -> None:
+    """ creating partition by user_sign_in """
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_smart" PARTITION OF "log_history" FOR VALUES IN ('smart')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_mobile" PARTITION OF "log_history" FOR VALUES IN ('mobile')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_pc" PARTITION OF "log_history" FOR VALUES IN ('pc')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_tablet" PARTITION OF "log_history" FOR VALUES IN ('tablet')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "user_sign_in_bot" PARTITION OF "log_history" FOR VALUES IN ('bot')"""
+    )
 
 
 users_roles = db.Table(
@@ -28,11 +46,19 @@ class User(db.Model):
 
 class LogHistory(db.Model):
     __tablename__ = 'log_history'
+    __table_args__ = (
+        UniqueConstraint('id', 'user_device_type'),
+        {
+            'postgresql_partition_by': 'LIST (user_device_type)',
+            'listeners': [('after_create', create_partition)],
+        }
+    )
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
     user_agent = db.Column(db.Text, nullable=False)
     login_time = db.Column(db.DateTime, nullable=False)
+    user_device_type = db.Column(db.Text, primary_key=True)
 
 
 class Role(db.Model):
