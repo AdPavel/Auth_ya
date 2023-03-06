@@ -21,3 +21,4 @@ opentelemetry-exporter-jaeger==1.16.0
 jaeger-client==4.8.0
 Flask-OpenTracing==1.1.0
 redis-rate-limiter==0.2.0
+user_agents==2.2.0
