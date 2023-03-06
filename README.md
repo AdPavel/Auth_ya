@@ -42,3 +42,5 @@ flask db migrate
 docker exec -it auth sh
 flask db migrate
 ```
+### Интеграция с fastapi
+Функции для интеграции реализованы в https://github.com/AdPavel/fastapi_yapr
