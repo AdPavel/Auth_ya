@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
 from utils.password_generator import get_random_password
+from user_agents import parse
 
 from database.db import db
 from database.db_models import User, Role, LogHistory
@@ -19,11 +20,26 @@ class ActionResponse(BaseModel):
         arbitrary_types_allowed = True
 
 
+def get_user_device_type(user_agent: str) -> str:
+    device_type = parse(user_agent)
+    if device_type.is_pc:
+        return 'pc'
+    elif device_type.is_mobile:
+        return 'mobile'
+    elif device_type.is_tablet:
+        return 'tablet'
+    elif device_type.is_bot:
+        return 'bot'
+
+    return 'smart'
+
+
 def add_record_to_log_history(user: User, user_agent: str):
     entry = LogHistory(
         user_id=user.id,
         user_agent=user_agent,
-        login_time=datetime.now()
+        login_time=datetime.now(),
+        user_device_type=get_user_device_type(user_agent)
     )
     db.session.add(entry)
     db.session.commit()
@@ -103,7 +119,8 @@ def get_user_log_history(user_id: UUID) -> list:
         {
             'id': log.id,
             'user_agent': log.user_agent,
-            'login_date': log.login_time
+            'login_date': log.login_time,
+            'user_device': log.user_device_type
         } for log in log_history
     ]
     return result
