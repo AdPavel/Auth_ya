@@ -410,6 +410,20 @@ paths:
           description: Роль с таким id не существует
         '403':
           description: Отказано в доступе
+  /api/v1/roles/get_roles_by_token:
+    get:
+      tags:
+        - roles
+      summary: Получить роли по токену
+      description: Получить роли по токену
+      operationId: token_roles
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Токен невалидный
 components:
   schemas:
     User:

@@ -1,12 +1,10 @@
 import uuid
-from flask import jsonify, Response, request
 from http import HTTPStatus
-from flask import Blueprint
-from flask_jwt_extended import jwt_required
 
-from database.db_models import Role, User
 from database import db_role_actions
-
+from database.db_models import Role, User
+from flask import jsonify, Response, request, Blueprint
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 roles = Blueprint('roles', __name__, url_prefix='/roles')
 
@@ -96,3 +94,17 @@ def delete_user_role(user_id: uuid):
     if response.success:
         return Response('Роль удалена', status=HTTPStatus.OK)
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
+
+
+@roles.route('/get_roles_by_token', methods=['GET'])
+@jwt_required()
+def get_roles_by_token():
+
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).one()
+    if user:
+        user_roles = [role.name for role in user.role]
+    else:
+        user_roles = ['unauthorized']
+
+    return jsonify({'roles': user_roles})
