@@ -18,7 +18,7 @@ basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-@RateLimiter(limit=1, period=timedelta(minutes=10))
+@RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def create_role(data):
 
     response = db_role_actions.create_role(data['name'])
@@ -30,7 +30,7 @@ def create_role(data):
 @roles.route('/delete/<uuid:role_id>', methods=['DELETE'])
 @jwt_required()
 @db_role_actions.admin_access
-@RateLimiter(limit=1, period=timedelta(minutes=10))
+@RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def delete_role(role_id):
     if not role_id:
         return Response('Не указа id роли для удаления', status=HTTPStatus.BAD_REQUEST)
@@ -44,7 +44,7 @@ def delete_role(role_id):
 @roles.route('', methods=['GET'])
 @jwt_required()
 @db_role_actions.admin_access
-@RateLimiter(limit=1, period=timedelta(minutes=10))
+@RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def get_all_roles():
 
     all_roles = Role.query.all()
@@ -61,7 +61,7 @@ def get_all_roles():
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-@RateLimiter(limit=1, period=timedelta(minutes=10))
+@RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def change_role(data, role_id):
 
     response = db_role_actions.update_role(data['name'], role_id)
@@ -73,7 +73,7 @@ def change_role(data, role_id):
 @roles.route('/<uuid:user_id>', methods=['GET'])
 @jwt_required()
 @db_role_actions.admin_access
-@RateLimiter(limit=1, period=timedelta(minutes=10))
+@RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def get_user_roles(user_id: uuid):
     if not user_id:
         Response('Не указан id пользователя', status=HTTPStatus.BAD_REQUEST)
@@ -87,7 +87,7 @@ def get_user_roles(user_id: uuid):
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
-@RateLimiter(limit=1, period=timedelta(minutes=10))
+@RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def set_user_role(data, user_id: uuid):
     role_name = data['name']
     response = db_role_actions.set_or_del_user_role(user_id, role_name)
@@ -99,7 +99,7 @@ def set_user_role(data, user_id: uuid):
 @roles.route('/<uuid:user_id>/delete', methods=['DELETE'])
 @jwt_required()
 @db_role_actions.admin_access
-@RateLimiter(limit=1, period=timedelta(minutes=10))
+@RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def delete_user_role(user_id: uuid):
     role_name = request.args.get('role_name')
     response = db_role_actions.set_or_del_user_role(user_id, role_name, is_delete=True)
