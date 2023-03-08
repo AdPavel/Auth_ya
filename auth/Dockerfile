@@ -1,6 +1,5 @@
 FROM python:3.10-alpine as base
 FROM base as builder
-RUN mkdir /install
 WORKDIR /install
 FROM base
 COPY --from=builder /install /usr/local
