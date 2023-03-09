@@ -1,14 +1,14 @@
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash, check_password_hash
-from pydantic import BaseModel
-from typing import Union
 from datetime import datetime
-from utils.password_generator import get_random_password
-from user_agents import parse
+from typing import Union
 
 from database.db import db
 from database.db_models import User, Role, LogHistory
+from pydantic import BaseModel
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import IntegrityError
+from user_agents import parse
+from utils.password_generator import get_random_password
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class ActionResponse(BaseModel):
@@ -136,7 +136,7 @@ def create_role(name: str):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Роль с таким именем уже существует'
+            message='Role already exists'
         )
 
     return ActionResponse(

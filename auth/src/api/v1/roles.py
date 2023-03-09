@@ -26,7 +26,7 @@ def create_role(data):
 
     response = db_role_actions.create_role(data['name'])
     if response.success:
-        return Response('Роль создана', status=HTTPStatus.CREATED)
+        return Response('Role is created', status=HTTPStatus.CREATED)
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
@@ -39,11 +39,11 @@ def delete_role(role_id):
     """Удалить роль"""
 
     if not role_id:
-        return Response('Не указа id роли для удаления', status=HTTPStatus.BAD_REQUEST)
+        return Response('Not specifying role id', status=HTTPStatus.BAD_REQUEST)
 
     response = db_role_actions.delete_role(role_id)
     if response.success:
-        return Response('Роль удалена', status=HTTPStatus.OK)
+        return Response('Role removed', status=HTTPStatus.OK)
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
@@ -76,7 +76,7 @@ def change_role(data, role_id):
 
     response = db_role_actions.update_role(data['name'], role_id)
     if response.success:
-        return Response('Роль изменена', status=HTTPStatus.CREATED)
+        return Response('Role changed', status=HTTPStatus.CREATED)
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
@@ -108,7 +108,7 @@ def set_user_role(data, user_id: uuid):
     role_name = data['name']
     response = db_role_actions.set_or_del_user_role(user_id, role_name)
     if response.success:
-        return Response('Роль назначена', status=HTTPStatus.CREATED)
+        return Response('Role assigned', status=HTTPStatus.CREATED)
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
@@ -123,7 +123,7 @@ def delete_user_role(user_id: uuid):
     role_name = request.args.get('role_name')
     response = db_role_actions.set_or_del_user_role(user_id, role_name, is_delete=True)
     if response.success:
-        return Response('Роль удалена', status=HTTPStatus.OK)
+        return Response('Role removed', status=HTTPStatus.OK)
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 

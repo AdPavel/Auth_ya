@@ -78,7 +78,7 @@ def change_login():
 
     user = db_actions.get_user_by_login(new_login)
     if user:
-        return Response('Пользователь с таким именем уже существует', status=HTTPStatus.CONFLICT)
+        return Response('User with this name already exists', status=HTTPStatus.CONFLICT)
 
     user_id = get_jwt_identity()
 

@@ -19,7 +19,7 @@ def role_required(f):
         role = data.get('name', None) or data.get('id', None)
 
         if not role:
-            return Response('Не указана роль или id роли', status=HTTPStatus.BAD_REQUEST)
+            return Response('Role name or role id is not specified', status=HTTPStatus.BAD_REQUEST)
 
         return f(data, *args, **kwargs)
     return decorated
@@ -32,7 +32,7 @@ def admin_access(f):
         admin = get_role_by_name('admin')
         user = get_user_by_id(user_id)
         if admin not in user.role:
-            return Response('Необходима роль admin', status=HTTPStatus.FORBIDDEN)
+            return Response('Admin role is required', status=HTTPStatus.FORBIDDEN)
         return f(*args, **kwargs)
     return decorate
 
@@ -62,7 +62,7 @@ def set_or_del_user_role(user_id: UUID, role_name: str, is_delete=False) -> Acti
         return ActionResponse(
             success=False,
             obj=None,
-            message='Не указан id пользователя'
+            message='User id is not specified'
         )
 
     user = get_user_by_id(user_id)
@@ -71,23 +71,23 @@ def set_or_del_user_role(user_id: UUID, role_name: str, is_delete=False) -> Acti
         return ActionResponse(
             success=False,
             obj=None,
-            message='Нет такого пользователя или роли'
+            message='No such user or role'
         )
 
     if not is_delete:
         if role in user.role:
-            error_msg = 'У пользователя уже установлена такая роль'
+            error_msg = 'The user already has this role'
             return ActionResponse(success=False, obj=None, message=error_msg)
         else:
             user.role.append(role)
-            error_msg = 'Не удалось добавить роль пользователю'
+            error_msg = 'Failed to add role to user'
     else:
         if role not in user.role:
-            error_msg = 'У пользователя нет такой роли'
+            error_msg = 'User does not have this role'
             return ActionResponse(success=False, obj=None, message=error_msg)
         else:
             user.role.remove(role)
-            error_msg = 'Не удалось удалить роль пользователю'
+            error_msg = 'Failed to delete user role'
 
     try:
         db.session.commit()
@@ -111,7 +111,7 @@ def create_role(name: str):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Роль уже существует'
+            message='Role already exists'
         )
     role = Role(name=name)
     try:
@@ -137,7 +137,7 @@ def delete_role(_id: UUID):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Не найдена роль'
+            message='Role not found'
         )
     try:
         db.session.delete(role_for_delete)
@@ -146,7 +146,7 @@ def delete_role(_id: UUID):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Не удалось удалить роль'
+            message='Failed to remove role'
         )
 
     return ActionResponse(
@@ -162,13 +162,13 @@ def update_role(new_name: str, _id: UUID):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Не найдена роль'
+            message='Role not found'
         )
     if role_for_update.name == new_name:
         return ActionResponse(
             success=False,
             obj=None,
-            message='Роль уже существует'
+            message='Role already exists'
         )
     role_for_update.name = new_name
     try:
@@ -177,7 +177,7 @@ def update_role(new_name: str, _id: UUID):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Не удалось переименовать роль'
+            message='Failed to rename role'
         )
 
     return ActionResponse(
