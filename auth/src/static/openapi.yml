@@ -213,7 +213,7 @@ paths:
           description: Missing Authorization Header
         '422':
           description: Wrong token
-  /api/v1/roles/create:
+  /api/v1/roles:
     post:
       tags:
         - roles
@@ -240,7 +240,26 @@ paths:
           description: Роль с таким именем уже существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/delete/{role_id}:
+    get:
+      tags:
+        - roles
+      summary: Посмотреть все роли
+      description: Посмотреть все роли
+      operationId: roles
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Roles'
+        '401':
+          description: Токен невалидный
+        '403':
+          description: Отказано в доступе
+  /api/v1/roles/{role_id}:
     delete:
       tags:
         - roles
@@ -265,7 +284,6 @@ paths:
           description: Роль с таким id не существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/change/{role_id}:
     put:
       tags:
         - roles
@@ -273,7 +291,7 @@ paths:
       description: Изменить роль
       operationId: change_role
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - in: path
           name: role_id
@@ -299,27 +317,7 @@ paths:
           description: Роль с таким именем уже существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles:
-    get:
-      tags:
-        - roles
-      summary: Посмотреть все роли
-      description: Посмотреть все роли
-      operationId: roles
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Roles'
-        '401':
-          description: Токен невалидный
-        '403':
-          description: Отказано в доступе
-  /api/v1/roles/{user_id}:
+  /api/v1/roles/user/{user_id}:
     get:
       tags:
         - user roles
@@ -346,7 +344,6 @@ paths:
           description: Токен невалидный
         '403':
           description: Отказано в доступе
-  /api/v1/roles/{user_id}/create:
     post:
       tags:
         - user roles
@@ -354,7 +351,7 @@ paths:
       description: Назначить роль пользователю
       operationId: user_create_role
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - in: path
           name: user_id
@@ -380,7 +377,6 @@ paths:
           description: Роль с таким именем уже существует
         '403':
           description: Отказано в доступе
-  /api/v1/roles/{user_id}/delete:
     delete:
       tags:
         - user roles

@@ -22,7 +22,7 @@ def test_create_role(client_with_db, create_user_admin, create_role, query_data:
     user = get_user_by_login('admin_test')
     access_token = create_access_token(identity=user.id)
     response = client_with_db.post(
-        '/api/v1/roles/create',
+        '/api/v1/roles',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -32,7 +32,7 @@ def test_create_role(client_with_db, create_user_admin, create_role, query_data:
     assert response.status_code == expected_answer['status']
 
     response = client_with_db.post(
-        '/api/v1/roles/create',
+        '/api/v1/roles',
         headers={
             'Authorization': 'Bearer ' + '123'
         },
@@ -44,7 +44,7 @@ def test_create_role(client_with_db, create_user_admin, create_role, query_data:
     user = get_user_by_login('test')
     access_token = create_access_token(identity=user.id)
     response = client_with_db.post(
-        '/api/v1/roles/create',
+        '/api/v1/roles',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -56,13 +56,11 @@ def test_create_role(client_with_db, create_user_admin, create_role, query_data:
 
 def test_delete_role(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('test_role')
-    query_data = {'data': {'id': role.id}}
     response = client_with_db.delete(
-        '/api/v1/roles/delete',
+        f'/api/v1/roles/{role.id}',
         headers={
             'Authorization': 'Bearer ' + '123'
-        },
-        json=query_data['data']
+        }
     )
 
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
@@ -70,26 +68,22 @@ def test_delete_role(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('test')
     access_token = create_access_token(identity=user.id)
     role = db_role_actions.get_role_by_name('test_role')
-    query_data = {'data': {'id': role.id}}
     response = client_with_db.delete(
-        '/api/v1/roles/delete',
+        f'/api/v1/roles/{role.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
-        },
-        json=query_data['data']
+        }
     )
 
     assert response.status_code == HTTPStatus.FORBIDDEN
 
     user = get_user_by_login('admin_test')
     access_token = create_access_token(identity=user.id)
-    query_data = {'data': {'id': '6c62b72f-fb6f-49c8-b9f6-96180d239c10'}}
     response = client_with_db.delete(
-        '/api/v1/roles/delete',
+        '/api/v1/roles/6c62b72f-fb6f-49c8-b9f6-96180d239c10',
         headers={
             'Authorization': 'Bearer ' + access_token
-        },
-        json=query_data['data']
+        }
     )
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -97,13 +91,11 @@ def test_delete_role(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('admin_test')
     access_token = create_access_token(identity=user.id)
     role = db_role_actions.get_role_by_name('test_role')
-    query_data = {'data': {'id': role.id}}
     response = client_with_db.delete(
-        '/api/v1/roles/delete',
+        f'/api/v1/roles/{role.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
-        },
-        json=query_data['data']
+        }
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -111,9 +103,9 @@ def test_delete_role(client_with_db, create_user_admin, create_role):
 
 def test_change_role(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('test_role')
-    query_data = {'data': {'id': role.id, 'name': 'new_role'}}
+    query_data = {'data': {'name': 'new_role'}}
     response = client_with_db.put(
-        '/api/v1/roles/change',
+        f'/api/v1/roles/{role.id}',
         headers={
             'Authorization': 'Bearer ' + '123'
         },
@@ -125,9 +117,9 @@ def test_change_role(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('test')
     access_token = create_access_token(identity=user.id)
     role = db_role_actions.get_role_by_name('test_role')
-    query_data = {'data': {'id': role.id, 'name': 'new_role'}}
+    query_data = {'data': {'name': 'new_role'}}
     response = client_with_db.put(
-        '/api/v1/roles/change',
+        f'/api/v1/roles/{role.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -139,9 +131,9 @@ def test_change_role(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('admin_test')
     access_token = create_access_token(identity=user.id)
     role = db_role_actions.get_role_by_name('test_role')
-    query_data = {'data': {'id': role.id, 'name': 'test_role'}}
+    query_data = {'data': {'name': 'test_role'}}
     response = client_with_db.put(
-        '/api/v1/roles/change',
+        f'/api/v1/roles/{role.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -153,9 +145,9 @@ def test_change_role(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('admin_test')
     access_token = create_access_token(identity=user.id)
     role = db_role_actions.get_role_by_name('test_role')
-    query_data = {'data': {'id': role.id, 'name': 'new_role'}}
+    query_data = {'data': {'name': 'new_role'}}
     response = client_with_db.put(
-        '/api/v1/roles/change',
+        f'/api/v1/roles/{role.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -201,7 +193,7 @@ def test_get_all_roles(client_with_db, create_user_admin, create_role):
 def test_get_user_roles(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('test')
     response = client_with_db.get(
-        f'/api/v1/roles/{user.id}',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + '123'
         }
@@ -212,7 +204,7 @@ def test_get_user_roles(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('test')
     access_token = create_access_token(identity=user.id)
     response = client_with_db.get(
-        f'/api/v1/roles/{user.id}',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         }
@@ -223,7 +215,7 @@ def test_get_user_roles(client_with_db, create_user_admin, create_role):
     user = get_user_by_login('admin_test')
     access_token = create_access_token(identity=user.id)
     response = client_with_db.get(
-        f'/api/v1/roles/{user.id}',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         }
@@ -237,7 +229,7 @@ def test_set_user_roles(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('test_role')
     query_data = {'data': {'name': role.name}}
     response = client_with_db.post(
-        f'/api/v1/roles/{user.id}/create',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + '123'
         },
@@ -251,7 +243,7 @@ def test_set_user_roles(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('test_role')
     query_data = {'data': {'name': role.name}}
     response = client_with_db.post(
-        f'/api/v1/roles/{user.id}/create',
+        f'/api/v1/roles//user{user.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -265,7 +257,7 @@ def test_set_user_roles(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('test_role')
     query_data = {'data': {'name': role.name}}
     response = client_with_db.post(
-        f'/api/v1/roles/{user.id}/create',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -280,7 +272,7 @@ def test_delete_user_roles(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('test_role')
     query_data = {'data': {'name': role.name}}
     response = client_with_db.delete(
-        f'/api/v1/roles/{user.id}/delete',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + '123'
         },
@@ -294,7 +286,7 @@ def test_delete_user_roles(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('test_role')
     query_data = {'data': {'name': role.name}}
     response = client_with_db.delete(
-        f'/api/v1/roles/{user.id}/delete',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         },
@@ -308,7 +300,7 @@ def test_delete_user_roles(client_with_db, create_user_admin, create_role):
     role = db_role_actions.get_role_by_name('admin')
     query_data = {'data': {'name': role.name}}
     response = client_with_db.delete(
-        f'/api/v1/roles/{user.id}/delete',
+        f'/api/v1/roles/user/{user.id}',
         headers={
             'Authorization': 'Bearer ' + access_token
         },

@@ -14,7 +14,8 @@ from utils.settings import settings
 roles = Blueprint('roles', __name__, url_prefix='/roles')
 basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
 
-@roles.route('/create', methods=['POST'])
+
+@roles.route('', methods=['POST'])
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
@@ -27,7 +28,7 @@ def create_role(data):
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
-@roles.route('/delete/<uuid:role_id>', methods=['DELETE'])
+@roles.route('/<uuid:role_id>', methods=['DELETE'])
 @jwt_required()
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
@@ -57,7 +58,7 @@ def get_all_roles():
     return jsonify({'roles': output})
 
 
-@roles.route('/change/<uuid:role_id>', methods=['PUT'])
+@roles.route('/<uuid:role_id>', methods=['PUT'])
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
@@ -70,7 +71,7 @@ def change_role(data, role_id):
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
-@roles.route('/<uuid:user_id>', methods=['GET'])
+@roles.route('/user/<uuid:user_id>', methods=['GET'])
 @jwt_required()
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
@@ -83,7 +84,7 @@ def get_user_roles(user_id: uuid):
     return jsonify({f'{user.login}': output})
 
 
-@roles.route('/<uuid:user_id>/create', methods=['POST'])
+@roles.route('/user/<uuid:user_id>', methods=['POST'])
 @db_role_actions.role_required
 @jwt_required()
 @db_role_actions.admin_access
@@ -96,7 +97,7 @@ def set_user_role(data, user_id: uuid):
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
 
 
-@roles.route('/<uuid:user_id>/delete', methods=['DELETE'])
+@roles.route('/user/<uuid:user_id>', methods=['DELETE'])
 @jwt_required()
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
