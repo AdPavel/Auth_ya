@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
+
 from database.db import db
 
 

@@ -7,6 +7,7 @@ import click
 from flask import Flask, send_from_directory, request, json
 from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
+
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -63,14 +64,15 @@ def get_app() -> Flask:
 
     app = Flask(__name__)
 
-    get_tracer(app)
+    if settings.jaeger_enable:
+        get_tracer(app)
 
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
     app.secret_key = os.urandom(24)
 
     @app.errorhandler(RateLimitExceeded)
     def handle_rate_limit_exceeded(e):
-        msg = {'satus': HTTPStatus.TOO_MANY_REQUESTS, 'msg': "RateLimitExceeded", 'success': False}
+        msg = {'status': HTTPStatus.TOO_MANY_REQUESTS, 'msg': "RateLimitExceeded", 'success': False}
         return msg
 
     @app.errorhandler(HTTPException)

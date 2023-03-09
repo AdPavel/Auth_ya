@@ -7,9 +7,9 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
     get_jwt
 from redis_rate_limiter.config import basic_config
 from redis_rate_limiter.rate_limiter import RateLimiter
+from email_validator import validate_email, EmailNotValidError
 
 from utils.settings import settings
-from email_validator import validate_email, EmailNotValidError
 from database import db_actions
 from database import db_role_actions
 from utils.token_generator import get_tokens

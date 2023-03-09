@@ -1,15 +1,17 @@
+from functools import wraps
+from http import HTTPStatus
+from typing import Union
+
 from sqlalchemy.dialects.postgresql import UUID
 from flask import request, Response
 from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel
-from typing import Union
 from flask_jwt_extended import get_jwt_identity
 
 from .db import db
 from .db_models import User, Role
 from database.db_actions import get_user_by_id
-from functools import wraps
-from http import HTTPStatus
+
 
 
 def role_required(f):
