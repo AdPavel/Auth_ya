@@ -1,4 +1,5 @@
 import uuid
+import uuid
 from datetime import timedelta
 from http import HTTPStatus
 
@@ -10,6 +11,7 @@ from redis_rate_limiter.rate_limiter import RateLimiter
 from database.db_models import Role, User
 from database import db_role_actions
 from utils.settings import settings
+
 
 roles = Blueprint('roles', __name__, url_prefix='/roles')
 basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
@@ -106,3 +108,17 @@ def delete_user_role(user_id: uuid):
     if response.success:
         return Response('Роль удалена', status=HTTPStatus.OK)
     return Response(response.message, status=HTTPStatus.BAD_REQUEST)
+
+
+@roles.route('/get_roles_by_token', methods=['GET'])
+@jwt_required()
+def get_roles_by_token():
+
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).one()
+    if user:
+        user_roles = [role.name for role in user.role]
+    else:
+        user_roles = ['unauthorized']
+
+    return jsonify({'roles': user_roles})
