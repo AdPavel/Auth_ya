@@ -1,5 +1,4 @@
 import uuid
-import uuid
 from datetime import timedelta
 from http import HTTPStatus
 
