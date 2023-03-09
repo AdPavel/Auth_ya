@@ -1,31 +1,30 @@
-import backoff
-from flask import Flask, send_from_directory, request
-import click
 import os
+from datetime import timedelta
+from http import HTTPStatus
+
+import backoff
+import click
+from flask import Flask, send_from_directory, request, json
 from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
-
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from redis_rate_limiter.rate_limiter import RateLimitExceeded
+from werkzeug.exceptions import HTTPException
 
-from database.db import db, init_db, migrate
-from database.db_actions import create_user
-from database import db_role_actions
-from database.db_models import User, Role, LogHistory
-
-from api.v1.roles import roles
 from api.v1.account import account
 from api.v1.oauth import oauth
-from utils.settings import settings
-from datetime import timedelta
+from api.v1.roles import roles
+from database import db_role_actions
+from database.db import db, init_db, migrate
+from database.db_actions import create_user
+from database.db_models import User, Role, LogHistory
 from database.redis_db import redis_app
-
-from redis_rate_limiter.rate_limiter import RateLimitExceeded
-from http import HTTPStatus
+from utils.settings import settings
 
 
 def get_tracer(app):
@@ -73,6 +72,18 @@ def get_app() -> Flask:
     def handle_rate_limit_exceeded(e):
         msg = {'satus': HTTPStatus.TOO_MANY_REQUESTS, 'msg': "RateLimitExceeded", 'success': False}
         return msg
+
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+
+        response = e.get_response()
+        response.data = json.dumps({
+            'code': e.code,
+            'name': e.name,
+            'description': e.description,
+        })
+        response.content_type = 'application/json'
+        return response
 
     app.config['JWT_SECRET_KEY'] = settings.secret_key
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=settings.access_token_expires_hours)
