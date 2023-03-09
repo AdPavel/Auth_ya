@@ -70,7 +70,7 @@ def get_app() -> Flask:
 
     @app.errorhandler(RateLimitExceeded)
     def handle_rate_limit_exceeded(e):
-        msg = {'satus': HTTPStatus.TOO_MANY_REQUESTS, 'msg': "RateLimitExceeded", 'success': False}
+        msg = {'status': HTTPStatus.TOO_MANY_REQUESTS, 'msg': "RateLimitExceeded", 'success': False}
         return msg
 
     app.config['JWT_SECRET_KEY'] = settings.secret_key
