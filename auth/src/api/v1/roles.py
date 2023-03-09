@@ -1,7 +1,8 @@
 import uuid
 from datetime import timedelta
-from flask import jsonify, Response, request
 from http import HTTPStatus
+
+from flask import jsonify, Response, request
 from flask import Blueprint
 from flask_jwt_extended import jwt_required
 from redis_rate_limiter.config import basic_config

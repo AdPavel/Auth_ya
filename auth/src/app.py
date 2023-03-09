@@ -1,10 +1,12 @@
-import backoff
-from flask import Flask, send_from_directory, request
-import click
+from http import HTTPStatus
 import os
+
+from flask import Flask, send_from_directory, request
+import backoff
+import click
 from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
-
+from redis_rate_limiter.rate_limiter import RateLimitExceeded
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -16,16 +18,12 @@ from database.db import db, init_db, migrate
 from database.db_actions import create_user
 from database import db_role_actions
 from database.db_models import User, Role, LogHistory
-
 from api.v1.roles import roles
 from api.v1.account import account
 from api.v1.oauth import oauth
 from utils.settings import settings
 from datetime import timedelta
 from database.redis_db import redis_app
-
-from redis_rate_limiter.rate_limiter import RateLimitExceeded
-from http import HTTPStatus
 
 
 def get_tracer(app):
