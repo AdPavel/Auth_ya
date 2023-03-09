@@ -1,6 +1,7 @@
+from typing import Union
+
 from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel
-from typing import Union
 
 from .db import db
 from .db_models import User, Role, SocialAccount

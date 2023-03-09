@@ -1,13 +1,16 @@
 import uuid
-from http import HTTPStatus
+import uuid
 from datetime import timedelta
+from http import HTTPStatus
+
+from flask import jsonify, Response, request
+from flask import Blueprint
+from flask_jwt_extended import jwt_required
 from redis_rate_limiter.config import basic_config
 from redis_rate_limiter.rate_limiter import RateLimiter
 
-from database import db_role_actions
 from database.db_models import Role, User
-from flask import jsonify, Response, request, Blueprint
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from database import db_role_actions
 from utils.settings import settings
 
 

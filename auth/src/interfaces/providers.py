@@ -1,9 +1,11 @@
-from utils.settings import settings
+from http import HTTPStatus
+
 from requests_oauthlib import OAuth2Session
 from flask import session, redirect, Response
+
 from database import db_social_actions, db_actions
 from utils.token_generator import get_tokens
-from http import HTTPStatus
+from utils.settings import settings
 
 
 class MainProvider:

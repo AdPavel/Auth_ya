@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from utils.settings import settings
 from flask_migrate import Migrate
+
+from utils.settings import settings
 
 user = settings.postgres_user
 password = settings.postgres_password

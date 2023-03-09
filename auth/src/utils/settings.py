@@ -1,6 +1,7 @@
 import pathlib
-from pydantic import BaseSettings
 from typing import Any
+
+from pydantic import BaseSettings
 
 
 class Base(BaseSettings):
@@ -13,6 +14,7 @@ class Base(BaseSettings):
     jaeger_host: str
     jaeger_port: int
     jaeger_enable_console_trace: bool
+    jaeger_enable: bool
 
     # postgres
     postgres_user: str
