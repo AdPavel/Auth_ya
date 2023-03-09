@@ -113,7 +113,9 @@ def get_log_history():
     """Получение истории входов пользователя"""
 
     user_id = get_jwt_identity()
-    history = db_actions.get_user_log_history(user_id)
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    history = db_actions.get_user_log_history(user_id, page, per_page)
     return jsonify(history)
 
 

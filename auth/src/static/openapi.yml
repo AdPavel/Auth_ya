@@ -202,6 +202,17 @@ paths:
       summary: История входов
       description: История входов
       operationId: history
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: per_page
+          required: false
+          schema:
+            type: integer
       security:
         - bearerAuth: []
       responses:
@@ -481,6 +492,9 @@ components:
         timestamp:
           type: integer
           example: 1675847177
+        page:
+          type: integer
+          example: 1
     History:
       type: array
       items:

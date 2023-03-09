@@ -110,17 +110,18 @@ def get_user(login: str, password: str) -> ActionResponse:
         )
 
 
-def get_user_log_history(user_id: UUID) -> list:
+def get_user_log_history(user_id: UUID, page: int, per_page: int) -> list:
     log_history = (LogHistory.query
                              .filter_by(user_id=user_id)
                              .order_by(LogHistory.login_time.desc())
-                             .limit(10))
+                             .paginate(page=page, per_page=per_page))
     result = [
         {
             'id': log.id,
             'user_agent': log.user_agent,
             'login_date': log.login_time,
-            'user_device': log.user_device_type
+            'user_device': log.user_device_type,
+            'page': page
         } for log in log_history
     ]
     return result
