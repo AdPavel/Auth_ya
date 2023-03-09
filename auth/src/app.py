@@ -27,6 +27,7 @@ from database.redis_db import redis_app
 from redis_rate_limiter.rate_limiter import RateLimitExceeded
 from http import HTTPStatus
 
+
 def get_tracer(app):
 
     @app.before_request
@@ -63,7 +64,8 @@ def get_app() -> Flask:
 
     app = Flask(__name__)
 
-    get_tracer(app)
+    if settings.jaeger_enable:
+        get_tracer(app)
 
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
     app.secret_key = os.urandom(24)

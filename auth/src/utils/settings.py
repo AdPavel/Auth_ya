@@ -13,6 +13,7 @@ class Base(BaseSettings):
     jaeger_host: str
     jaeger_port: int
     jaeger_enable_console_trace: bool
+    jaeger_enable: bool
 
     # postgres
     postgres_user: str
