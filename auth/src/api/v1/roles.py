@@ -1,11 +1,9 @@
 import uuid
-import uuid
 from datetime import timedelta
 from http import HTTPStatus
 
-from flask import jsonify, Response, request
-from flask import Blueprint
-from flask_jwt_extended import jwt_required
+from flask import jsonify, Response, request, Blueprint
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from redis_rate_limiter.config import basic_config
 from redis_rate_limiter.rate_limiter import RateLimiter
 
@@ -16,6 +14,7 @@ from utils.settings import settings
 
 roles = Blueprint('roles', __name__, url_prefix='/roles')
 basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
+
 
 @roles.route('/create', methods=['POST'])
 @db_role_actions.role_required
