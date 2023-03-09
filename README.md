@@ -42,3 +42,7 @@ flask db migrate
 docker exec -it auth sh
 flask db migrate
 ```
+### Настройка Rate Limit
+ Для того что бы снять ограничение количества запросов к серверу (Rate limit
+ ) нужно установить максимальное числа в .env для RATE_LIMIT_REQUEST (например 100 000
+ ) и минимальное для RATE_LIMIT_TIME (например 1, не должно быть 0)  
