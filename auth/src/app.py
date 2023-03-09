@@ -27,6 +27,7 @@ from database.redis_db import redis_app
 from redis_rate_limiter.rate_limiter import RateLimitExceeded
 from http import HTTPStatus
 
+
 def get_tracer(app):
 
     @app.before_request

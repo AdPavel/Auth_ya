@@ -18,4 +18,3 @@ def authorization_callback(provider):
 
     provider_init = get_provider(provider)()
     return provider_init.callback(oauth_state=session['oauth_state'], request=request)
-

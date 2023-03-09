@@ -18,6 +18,7 @@ from utils.token_generator import get_tokens
 account = Blueprint('account', __name__, url_prefix='/account')
 basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
 
+
 @account.route('/create_user', methods=['POST'])
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def create_user():

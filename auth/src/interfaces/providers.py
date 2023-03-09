@@ -123,4 +123,3 @@ def get_provider(provider: str):
                        }
 
     return social_services[provider]
-

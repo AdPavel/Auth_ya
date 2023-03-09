@@ -5,7 +5,7 @@ from typing import Any
 
 class Base(BaseSettings):
 
-    #Rate limit section
+    # Rate limit section
     rate_limit_request: int
     rate_limit_time: int
 
