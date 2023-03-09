@@ -1,7 +1,8 @@
-from flask import request, session
-from flask import Blueprint
+from http import HTTPStatus
 
+from flask import request, session, Response, Blueprint
 from interfaces.providers import get_provider
+
 
 oauth = Blueprint('oauth', __name__, url_prefix='/oauth')
 
@@ -11,8 +12,11 @@ def authorization(provider):
 
     """Вход пользователя через социальные сети"""
 
-    provider_init = get_provider(provider)()
-    return provider_init.authorization()
+    provider = get_provider(provider)
+    if provider:
+        provider_init = provider()
+        return provider_init.authorization()
+    return Response("Provider doesn't exist", status=HTTPStatus.BAD_REQUEST)
 
 
 @oauth.route('/<provider>/callback', methods=['GET'])

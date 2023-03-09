@@ -1,9 +1,10 @@
-from utils.settings import settings
-from requests_oauthlib import OAuth2Session
-from flask import session, redirect, Response
-from database import db_social_actions, db_actions
-from utils.token_generator import get_tokens
 from http import HTTPStatus
+
+from database import db_social_actions, db_actions
+from flask import session, redirect, Response
+from requests_oauthlib import OAuth2Session
+from utils.settings import settings
+from utils.token_generator import get_tokens
 
 
 class MainProvider:
@@ -122,4 +123,4 @@ def get_provider(provider: str):
                        'yandex': YandexProvider
                        }
 
-    return social_services[provider]
+    return social_services.get(provider)
