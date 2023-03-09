@@ -22,6 +22,8 @@ basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def create_role(data):
 
+    """Создать роль"""
+
     response = db_role_actions.create_role(data['name'])
     if response.success:
         return Response('Роль создана', status=HTTPStatus.CREATED)
@@ -33,6 +35,9 @@ def create_role(data):
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def delete_role(role_id):
+
+    """Удалить роль"""
+
     if not role_id:
         return Response('Не указа id роли для удаления', status=HTTPStatus.BAD_REQUEST)
 
@@ -47,6 +52,8 @@ def delete_role(role_id):
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def get_all_roles():
+
+    """Получить все роли"""
 
     all_roles = Role.query.all()
     output = []
@@ -65,6 +72,8 @@ def get_all_roles():
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def change_role(data, role_id):
 
+    """Изменить название роли"""
+
     response = db_role_actions.update_role(data['name'], role_id)
     if response.success:
         return Response('Роль изменена', status=HTTPStatus.CREATED)
@@ -76,6 +85,9 @@ def change_role(data, role_id):
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def get_user_roles(user_id: uuid):
+
+    """Получить роли пользователя"""
+
     if not user_id:
         Response('Не указан id пользователя', status=HTTPStatus.BAD_REQUEST)
 
@@ -90,6 +102,9 @@ def get_user_roles(user_id: uuid):
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def set_user_role(data, user_id: uuid):
+
+    """Добавить роль пользователю"""
+
     role_name = data['name']
     response = db_role_actions.set_or_del_user_role(user_id, role_name)
     if response.success:
@@ -102,6 +117,9 @@ def set_user_role(data, user_id: uuid):
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def delete_user_role(user_id: uuid):
+
+    """Удалить роль у пользователя"""
+
     role_name = request.args.get('role_name')
     response = db_role_actions.set_or_del_user_role(user_id, role_name, is_delete=True)
     if response.success:
@@ -112,6 +130,8 @@ def delete_user_role(user_id: uuid):
 @roles.route('/get_roles_by_token', methods=['GET'])
 @jwt_required()
 def get_roles_by_token():
+
+    """Получить роль по токену"""
 
     user_id = get_jwt_identity()
     user = User.query.filter_by(id=user_id).one()
