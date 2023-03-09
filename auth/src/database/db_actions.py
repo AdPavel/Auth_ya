@@ -10,6 +10,12 @@ from user_agents import parse
 from utils.password_generator import get_random_password
 from database.db import db
 from database.db_models import User, Role, LogHistory
+from pydantic import BaseModel
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import IntegrityError
+from user_agents import parse
+from utils.password_generator import get_random_password
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class ActionResponse(BaseModel):
@@ -111,17 +117,18 @@ def get_user(login: str, password: str) -> ActionResponse:
         )
 
 
-def get_user_log_history(user_id: UUID) -> list:
+def get_user_log_history(user_id: UUID, page: int, per_page: int) -> list:
     log_history = (LogHistory.query
                              .filter_by(user_id=user_id)
                              .order_by(LogHistory.login_time.desc())
-                             .limit(10))
+                             .paginate(page=page, per_page=per_page))
     result = [
         {
             'id': log.id,
             'user_agent': log.user_agent,
             'login_date': log.login_time,
-            'user_device': log.user_device_type
+            'user_device': log.user_device_type,
+            'page': page
         } for log in log_history
     ]
     return result
@@ -136,7 +143,7 @@ def create_role(name: str):
         return ActionResponse(
             success=False,
             obj=None,
-            message='Роль с таким именем уже существует'
+            message='Role already exists'
         )
 
     return ActionResponse(

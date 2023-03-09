@@ -6,7 +6,7 @@ from pydantic import BaseSettings
 
 class Base(BaseSettings):
 
-    #Rate limit section
+    # Rate limit section
     rate_limit_request: int
     rate_limit_time: int
 

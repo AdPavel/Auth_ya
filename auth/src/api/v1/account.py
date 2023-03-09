@@ -18,9 +18,12 @@ from utils.token_generator import get_tokens
 account = Blueprint('account', __name__, url_prefix='/account')
 basic_config(redis_url=f'redis://{settings.redis_host}:{settings.redis_port}/0')
 
+
 @account.route('/create_user', methods=['POST'])
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def create_user():
+
+    """Регистрация нового пользователя"""
 
     data = request.get_json()
     login = data.get('email', None)
@@ -42,6 +45,8 @@ def create_user():
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def login():
 
+    """Вход пользователя"""
+
     data = request.get_json()
     login = data.get('email', None)
     password = data.get('password', None)
@@ -61,6 +66,8 @@ def login():
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def change_login():
 
+    """Изменение логина"""
+
     data = request.get_json()
     new_login = data.get('email', None)
 
@@ -71,7 +78,7 @@ def change_login():
 
     user = db_actions.get_user_by_login(new_login)
     if user:
-        return Response('Пользователь с таким именем уже существует', status=HTTPStatus.CONFLICT)
+        return Response('User with this name already exists', status=HTTPStatus.CONFLICT)
 
     user_id = get_jwt_identity()
 
@@ -85,6 +92,8 @@ def change_login():
 @jwt_required()
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def change_password():
+
+    """Изменение пароля"""
 
     data = request.get_json()
     new_password = data.get('password', None)
@@ -100,8 +109,13 @@ def change_password():
 @jwt_required()
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def get_log_history():
+
+    """Получение истории входов пользователя"""
+
     user_id = get_jwt_identity()
-    history = db_actions.get_user_log_history(user_id)
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    history = db_actions.get_user_log_history(user_id, page, per_page)
     return jsonify(history)
 
 
@@ -109,6 +123,9 @@ def get_log_history():
 @account.route('/logout', methods=['DELETE'])
 @jwt_required(verify_type=False)
 def logout():
+
+    """Выход пользователя"""
+
     token = get_jwt()
     jti = token["jti"]
     ttype = token["type"]
@@ -119,6 +136,9 @@ def logout():
 @account.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
+
+    """Обновление токена"""
+
     current_user = get_jwt_identity()
     access_token = create_access_token(identity=current_user)
     return jsonify({'access_token': access_token})
@@ -129,6 +149,8 @@ def refresh():
 @db_role_actions.admin_access
 @RateLimiter(limit=settings.rate_limit_request, period=timedelta(minutes=settings.rate_limit_time))
 def get_all_users():
+
+    """Получение списка пользователей"""
 
     output = db_actions.get_users()
 
