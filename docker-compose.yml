@@ -45,6 +45,8 @@ services:
       - "80:80"
     depends_on:
       - auth
+    networks:
+      - auth_service
 
   jaeger:
     container_name: jaeger
@@ -58,6 +60,5 @@ volumes:
   static:
 
 networks:
-  default:
-    external:
-      name: movies_network
+  auth_service:
+    name: movies_network
