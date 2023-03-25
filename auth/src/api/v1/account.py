@@ -155,3 +155,14 @@ def get_all_users():
     output = db_actions.get_users()
 
     return jsonify({'Users': output})
+
+
+@account.route('/get_user_id', methods=['GET'])
+@jwt_required()
+def get_user_id_by_token():
+
+    """Получить id по токену"""
+
+    user_id = get_jwt_identity()
+
+    return jsonify({'user_id': user_id})
