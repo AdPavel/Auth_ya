@@ -55,6 +55,8 @@ class Base(BaseSettings):
 
     redirect_uri: str
 
+    sentry_dsn: str
+
     class Config:
 
         env_file = f"{pathlib.Path(__file__).resolve().parent.parent.parent.parent}/.env"

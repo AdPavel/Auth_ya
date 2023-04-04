@@ -4,10 +4,10 @@ from http import HTTPStatus
 
 import backoff
 import click
+import sentry_sdk
 from flask import Flask, send_from_directory, request, json
 from flask_jwt_extended import JWTManager
 from flask_swagger_ui import get_swaggerui_blueprint
-
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -15,17 +15,26 @@ from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from redis_rate_limiter.rate_limiter import RateLimitExceeded
+from sentry_sdk.integrations.flask import FlaskIntegration
 from werkzeug.exceptions import HTTPException
 
 from api.v1.account import account
 from api.v1.oauth import oauth
 from api.v1.roles import roles
 from database import db_role_actions
+from database.db_models import User, Role, LogHistory
 from database.db import db, init_db, migrate
 from database.db_actions import create_user
-from database.db_models import User, Role, LogHistory
 from database.redis_db import redis_app
 from utils.settings import settings
+
+sentry_sdk.init(
+    dsn=settings.sentry_dsn,
+    integrations=[
+        FlaskIntegration(),
+    ],
+    traces_sample_rate=1.0
+)
 
 
 def get_tracer(app):
